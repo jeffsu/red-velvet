@@ -4,9 +4,9 @@
   "main": "index.js",
   "directories": {
     "examples": "./examples",
-    "lib":      "./lib",
-    "public":   "./public",
-    "views":    "./views"
+    "lib": "./lib",
+    "public": "./public",
+    "views": "./views"
   },
   "dependencies": {
     "express": "~3.1.0",
@@ -14,7 +14,8 @@
     "redis": "~0.8.2",
     "coffee-script": "~1.4.0",
     "connect-coffee-script": "~0.1.1",
-    "jade": "~0.28.1"
+    "jade": "~0.28.1",
+    "optimist": "~0.3.5"
   },
   "devDependencies": {
     "coffee-script": "~1.4.0"
@@ -26,8 +27,8 @@
     "type": "git",
     "url": "git://github.com/jeffsu/red-velvet"
   },
-  "bin": { 
-    "rv-local": "./bin/rv-local" 
+  "bin": {
+    "rv-local": "./bin/rv-local"
   },
   "license": "BSD",
   "description": "red-velvet =========="
