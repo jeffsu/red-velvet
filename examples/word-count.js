@@ -50,11 +50,7 @@ layout
 
   .store('word-store', function (store) {
     store.partitions   = 1000;
-    store.hashFunction = rv.helpers.fmv;
-    
-    store.on('get-keys', function (packet) {
-
-    });
+    store.hashFunction = rv.helpers.djbHash;
 
     store.on('get', function (packet) {
       var key = packet.key;
