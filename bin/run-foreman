@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-
-require('coffee-script')
-var Foreman = require('../lib/system/foreman')
-forman = new Foreman()
-forman.runSteps()

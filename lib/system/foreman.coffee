@@ -6,7 +6,8 @@ config = require '../config'
 
 class Foreman
 
-  constructor: (@host, @file) ->
+  constructor: (@file, @host) ->
+    @host     ?= config.host
     @port     = config.port
     @workers  = []
     @www      = www()

@@ -26,7 +26,8 @@ else if !file
 
 else if command == 'run'
   Foreman = require('../lib/system/foreman')
-  new Foreman()
+  forman = new Foreman file
+  forman.runSteps()
 
 else if command == 'layout'
   fullpath = process.cwd() + '/' + file
