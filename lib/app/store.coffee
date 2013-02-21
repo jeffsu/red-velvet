@@ -19,8 +19,7 @@ helpers = require '../helpers'
 Role    = require './role'
 
 class Store extends Role
-  constructor: (app, layout, @name, @options, cb) ->
-    @app = app
+  constructor: (layout, @name, @options, cb) ->
     @options.partitions ||= 4096
     @options.hash       ||= helpers.djbHash
     @create_roles(layout)
@@ -66,13 +65,13 @@ class Store extends Role
       role.on "store-rm:#{@name}:#{index}", (id, cb) =>
         @rm_handler(id, cb)
 
-  get: (id, cb) ->
-    @app.ask("store-get:#{@suffix_for(id)}", {id: id}, cb)
+  get: (sender, id, cb) ->
+    sender.ask("store-get:#{@suffix_for(id)}", {id: id}, cb)
 
-  set: (id, value, cb) ->
-    @app.emit("store-set:#{@suffix_for(id)}", {id: id, value: value}, cb)
+  set: (sender, id, value, cb) ->
+    sender.emit("store-set:#{@suffix_for(id)}", {id: id, value: value}, cb)
 
-  rm: (id, cb) ->
-    @app.emit("store-rm:#{@suffix_for(id)}", {id: id}, cb)
+  rm: (sender, id, cb) ->
+    sender.emit("store-rm:#{@suffix_for(id)}", {id: id}, cb)
 
 module.exports = Role
