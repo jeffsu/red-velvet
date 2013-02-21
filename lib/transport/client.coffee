@@ -2,9 +2,10 @@ request = require 'request'
 class Client
   constructor: (@host, @port) ->
     @base = "http://#{@host}:#{@port}"
-    @stats = { count: 0, totalTime: 0, errors: 0, outstanding: 0 }
+    @profiler = new RequestProfiler()
 
   requestEmit: (event, data, cb) ->
+    serialized = JSON.stringify(data)
     params =
       uri: @base + "/emit.json"
       qs:
@@ -14,21 +15,17 @@ class Client
         event: event
       method: 'PUT'
       form:
-        data: JSON.stringify(data)
+        data: serialized
 
-
-    start = Date.now()
-    @stats.outstanding++
+    profile = @profiler.start_timing(event, serialized.length)
 
     request params, (err, r, body) =>
       console.log 'emit: ' + event + ' finished'
       cb(err) if cb
-      @stats.count++
-      @stats.outstanding--
-      @stats.errors++
-      @stats.totalTime += start - Date.now()
+      profile(err, body.length)
 
   requestAsk: (event, data, cb) ->
+    serialized = JSON.stringify(data)
     params =
       uri: @base + "/ask.json"
       pool:
@@ -37,18 +34,12 @@ class Client
         event: event
       method: 'PUT'
       form:
-        data: JSON.stringify(data)
+        data: serialized
 
-    start = Date.now()
-    @stats.outstanding++
+    profile = @profiler.start_timing(event, serialized.length)
 
     request params, (err, r, body) =>
       cb(err, JSON.parse(body)) if cb
-      @stats.count++
-      @stats.outstanding--
-      @stats.errors++
-      @stats.totalTime += start - Date.now()
+      profile(err, body.length)
 
-
-  
 module.exports = Client
