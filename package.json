@@ -12,6 +12,7 @@
     "express": "~3.1.0",
     "request": "~2.12.0",
     "redis": "~0.8.2",
+    "stylus": "~0.32.0",
     "coffee-script": "~1.4.0",
     "connect-coffee-script": "~0.1.1",
     "jade": "~0.28.1",

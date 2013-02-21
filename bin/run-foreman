@@ -2,4 +2,5 @@
 
 require('coffee-script')
 var Foreman = require('../lib/system/foreman')
-new Foreman()
+forman = new Foreman()
+forman.runSteps()

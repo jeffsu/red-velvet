@@ -37,7 +37,7 @@ class Config
     @port     = argv.port || env.RV_PORT || 8000
     @file     = cwd + '/' + argv.file
     @env      = 'local'
-    @cpus     = os.cpus()
+    @cpus     = os.cpus().length
     @totalmem = os.totalmem()
     @redisUri = argv.redis || 'redis://127.0.0.1:6379'
 
@@ -62,9 +62,13 @@ class Config
   checkController: (cb) ->
     @getClient (err, client) =>
       client.eval controllerCode, 1, host, (err, result) ->
-        cb null, result
+        # TODO handle error
+        cb result
 
-  set: (type, data, cb) ->
+  set: (type, cb) ->
+    data = {}
+    data[key] = this[key] for key in ['host', 'port', 'file', 'cpus', 'totalmem']
+
     @getClient (err, client) =>
       str = JSON.stringify data
       client.set KEYS.type, str, (err) ->
