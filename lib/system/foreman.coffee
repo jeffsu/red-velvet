@@ -1,15 +1,18 @@
 WorkerShell = require './worker-shell'
 www = require '../transport/www'
 class Foreman
+
   constructor: (@host, @file) ->
     @port     = 9000
     @workers  = []
     @www      = www()
 
     @www.get '/', (req, res) =>
-      res.render 'foreman', { name: 'hello', foreman: this }
+      res.render 'foreman', { foreman: this }
 
     @www.listen @port
+
+  runSteps: ->
 
   # array of [ role, count || 1 ]
   setSchema: (roles) ->

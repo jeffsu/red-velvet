@@ -48,4 +48,30 @@ layout
     });
   })
 
+  .store('word-store', function (store) {
+    store.partitions   = 1000;
+    store.hashFunction = rv.helpers.fmv;
+    
+    store.on('get-keys', function (packet) {
+
+    });
+
+    store.on('get', function (packet) {
+      var key = packet.key;
+      packet.reply('data');
+    })
+
+    store.on('set', function (packet) {
+      var key   = packet.key;
+      var value = packet.value;
+      packet.ack(null);
+    })
+
+    store.on('delete', function (packet) {
+      var key = packet.key;
+      packet.ack(null);
+    })
+
+  })
+
 module.exports = layout;
