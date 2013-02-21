@@ -14,7 +14,6 @@ class Worker
     @port   = @env.RV_PORT
     @setup()
 
-
   assume: (roleName) ->
     console.log('assuming:', roleName)
     if role = @layout.getRole roleName
