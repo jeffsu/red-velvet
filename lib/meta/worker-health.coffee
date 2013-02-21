@@ -15,10 +15,10 @@ class WorkerHealth
     
   getMetaData: ->
     return
-      clients:             @clientPool.getMetaData
-      #server:              @server.getMetaData
-      process_rss_memory:  @process_rss.toJSON
-      event_latency:       @delay_samples.toJSON
+      clients:             @clientPool.getMetaData()
+      #server:              @server.getMetaData()
+      process_rss_memory:  @process_rss.toJSON()
+      event_latency:       @delay_samples.toJSON()
 
 
 
