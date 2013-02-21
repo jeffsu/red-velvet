@@ -7,7 +7,7 @@ class EmitPacket
   # TODO error handling
   ack: (err) ->
     @count--
-    if @count == 0
+    if @count <= 0
       @cb(err) if @cb
 
 class AskPacket
