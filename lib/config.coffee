@@ -1,10 +1,11 @@
 argv  = require('optimist').argv
 env   = process.env
 cwd   = process.cwd()
+os    = require 'os'
 redis = require 'redis'
+url   = require 'url'
 
 getHost = ->
-  os     = require('os')
   ifaces = os.networkInterfaces()
   addresses = []
   for dev, iface of ifaces
@@ -15,24 +16,38 @@ getHost = ->
 
 host = getHost()
 
+controllerCode = """
+  local host = redis.call("get", "RV:CONTROLLER")
+  if host then
+    return host
+  else
+    redis.call("set", "RV:CONTROLLER", KEYS[1])
+    return KEYS[1]
+  end
+  """
+
 KEYS =
-  cluster: 'RV:CLUSTER'
-  health:  "RV:HEALTH:#{host}"
+  cluster:  'RV:CLUSTER'
+  register: "RV:REGISTER:#{host}"
+  health:   "RV:HEALTH:#{host}"
   
 class Config
   constructor: ->
     @host     = host
-    @port     = env.RV_HOST
+    @port     = argv.port || env.RV_PORT || 8000
     @file     = cwd + '/' + argv.file
     @env      = 'local'
-    @redisUri = argv.redis || 'redis://localhost:6379'
+    @cpus     = os.cpus()
+    @totalmem = os.totalmem()
+    @redisUri = argv.redis || 'redis://127.0.0.1:6379'
 
   getClient: (cb) ->
     if @clientReady
       return cb(null, @client)
 
-    @client = redis.createClient(@redisUri)
-    @client.on 'ready', ->
+    u = url.parse @redisUri
+    @client = redis.createClient(u.port, u.hostname)
+    @client.on 'ready', =>
       @clientReady = true
       cb(null, @client)
 
@@ -44,8 +59,15 @@ class Config
         else
           cb(null, null)
 
-  save: (type, data, cb) ->
+  checkController: (cb) ->
+    @getClient (err, client) =>
+      client.eval controllerCode, 1, host, (err, result) ->
+        cb null, result
+
+  set: (type, data, cb) ->
     @getClient (err, client) =>
       str = JSON.stringify data
       client.set KEYS.type, str, (err) ->
-        cb(err)
+        cb(err) if cb
+
+module.exports = new Config()
