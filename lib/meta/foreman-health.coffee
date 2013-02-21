@@ -7,9 +7,10 @@ config   = require '../config'
 
 class ForemanHealth
   constructor: ->
-    @free_memory = new StatisticalAggregator()
-    @host   = config.host
-    @health = {}
+    @load_average = new StatisticalAggregator()
+    @free_memory  = new StatisticalAggregator()
+    @host         = config.host
+    @health       = {}
     @start()
 
   recordWorker: (port, health) ->
@@ -17,8 +18,10 @@ class ForemanHealth
 
   start: ->
     repeat = =>
+      @load_average.push(os.loadavg()[0])       # always 1-minute average
       @free_memory.push(os.freemem())
-      @health = {free_memory: @free_memory.toJSON}
+      @health = {free_memory:  @free_memory.toJSON,
+                 load_average: @load_average.toJSON}
       setTimeout(run, INTERVAL)
 
     run =>
