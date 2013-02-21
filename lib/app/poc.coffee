@@ -1,11 +1,12 @@
 index = require './index'
-Packet = require '../transport/packet'
+packets = require '../transport/packets'
 
 layout = new index.Layout()
 
 layout.role "line-producer", (role) ->
   role.init (app) ->
-    app.emit "line", "words with friends"
+    line = -> app.emit "line", "words with friends"
+    setInterval line, 100
 
 layout.role "line-handler", (role) ->
   role.on "line", (packet, app) ->
@@ -20,8 +21,14 @@ app = new index.App()
 
 app.on 'emit', (event, data) ->
   console.log 'emit', event
-  p = new Packet(event, data)
-  app.handlePacket p
+  p = new packets.EmitPacket(event, data)
+  app.handleEmit p
+
+app.on 'ask', (event, data) ->
+  console.log 'ask', event
+  p = new packets.AskPacket(event, data)
+  app.handleEmit p
+
 
 app.assume layout.getRole("word-handler")
 app.assume layout.getRole("line-handler")

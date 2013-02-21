@@ -38,13 +38,12 @@ class Worker
     @clientPool = new ClientPool()
 
     @app.on 'emit', (emit, data, cb) =>
-      roles = getRoleNamesFromEmit(emit)
+      roles = @layout.getRoleNamesFromEmit(emit)
       @clientPool.emit(emit, data, roles, cb)
 
-    @app.on 'ask', (ask, data, cb) =>
-      role   = @layout.getRoleNameFromAsk(ask)
-      client = @clientPool.choose role
-      client.requestAsk ask, data, cb
+    @app.on 'ask', (question, data, cb) =>
+      role = @layout.getRoleNameFromAsk(question)
+      @clientPool.ask(question, data, role, cb)
 
     @server.run @port
 

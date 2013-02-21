@@ -2,7 +2,7 @@ Balancer = require './balancer'
 Client   = require './client'
 {EventEmitter} = require 'events'
 
-class ClientPool extends EventEmitter
+class ClientPool
   constructor: ->
     @balancers = {}
 
@@ -10,7 +10,6 @@ class ClientPool extends EventEmitter
   setCluster: (data) ->
     for row in data
       @add(new Client(row[0], row[1]), row[2])
-    @emit 'ready'
 
   add: (client, roles) ->
     for r in roles
@@ -21,9 +20,9 @@ class ClientPool extends EventEmitter
 
   emit: (event, data, roles, cb) ->
     n = roles.length
-    onfin = (err) ->
+    onFin = (err) ->
       if --n == 0
-        cb(err) if cb()
+        cb(err) if cb
       
     for role in roles
       client = @balancers[role].choose()

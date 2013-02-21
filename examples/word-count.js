@@ -5,10 +5,11 @@ layout
   .role('line-producer', function (role) {
     role.init(function (app) {
       function line() {
+        console.log('emit: line')
         app.emit('line', 'hello world');
       }
 
-      setInterval(line, 1000);
+      setInterval(line, 100);
 
       function ask() {
         console.log('asking word-count');
