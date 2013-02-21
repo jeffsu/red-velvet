@@ -16,6 +16,7 @@
 # The number of partitions can be set as one of the options.
 
 helpers = require '../helpers'
+Role    = require './role'
 
 class Store extends Role
   constructor: (app, layout, @name, @options, cb) ->
