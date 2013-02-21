@@ -1,7 +1,9 @@
 INTERVAL = 10000
+config   = require '../config'
 
 class ForemanHealth
-  constructor: (@host, @persister) ->
+  constructor: ->
+    @host   = config.host
     @health = {}
     @start()
     
