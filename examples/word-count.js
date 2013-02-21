@@ -63,7 +63,7 @@ layout
       packet.ack(null);
     })
 
-    store.on('delete', function (packet) {
+    store.on('remove', function (packet) {
       var key = packet.key;
       packet.ack(null);
     })

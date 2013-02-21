@@ -5,7 +5,8 @@ App   = require './app'
 # builder for Layout
 class Layout
   constructor: ->
-    @roles = {}
+    @roles  = {}
+    @stores = {}
 
     @emitsLookup = {}
     @asksLookup  = {}
@@ -27,7 +28,7 @@ class Layout
 
   store: (name, options, cb) ->
     throw new Error("Store: '#{name}' already exists") if name in this
-    this[name] = new Store(this, name, options, cb)
+    @stores[name] = this[name] = new Store(this, name, options, cb)
     return this
 
   print: ->
