@@ -4,7 +4,7 @@ packets = require './packets'
 RequestProfiler = require '../optimizer/request-profiler'
 
 class Server extends EventEmitter
-  constructor:
+  constructor: ->
     @profiler = new RequestProfiler()
 
   run: (port) ->

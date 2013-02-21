@@ -1,5 +1,6 @@
-Role = require './role'
-App  = require './app'
+Role  = require './role'
+Store = require './store'
+App   = require './app'
 
 # builder for Layout
 class Layout
@@ -28,7 +29,7 @@ class Layout
   # STUB FOR SPENCER
   store: (name, options, init) ->
     store = new Store(name, options, init)
-    @store[name] = store
+    @stores[name] = store
 
   print: ->
     out = [ 'ROLES:' ]

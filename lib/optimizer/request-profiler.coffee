@@ -46,12 +46,12 @@ class RequestProfiler
       error_aggregator.push error_rate
 
   toJSON: ->
-    {per_type_timings: @per_type_timings.toJSON,
-     per_type_rates:   @per_type_rates.toJSON,
-     error_rates:      @error_rates.toJSON,
-     active_requests:  @active.toJSON}
+    per_type_timings: @per_type_timings.toJSON
+    per_type_rates:   @per_type_rates.toJSON
+    error_rates:      @error_rates.toJSON
+    active_requests:  @active.toJSON
 
-  @fromJSON: (json) ->
+  fromJSON: (json) ->
     result = new RequestProfiler()
     @per_type_timings = StatisticalAggregator.fromJSON json.per_type_timings
     @per_type_rates   = StatisticalAggregator.fromJSON json.per_type_rates

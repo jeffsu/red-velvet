@@ -24,13 +24,17 @@ else if !file
   args.showHelp()
   process.exit()
 
-else if command == 'run'
-  Foreman = require('../lib/system/foreman')
-  forman = new Foreman file
-  forman.runSteps()
+Foreman = require('../lib/system/foreman')
+fullpath = "#{process.cwd()}/#{file}"
+switch command
+  when 'run'
+    forman = new Foreman fullpath
+    forman.run()
 
-else if command == 'layout'
-  fullpath = process.cwd() + '/' + file
-  layout = require fullpath
-  layout.print()
+  when 'layout'
+    forman = new Foreman fullpath
+    layout = require fullpath
+    layout.print()
 
+  else
+    args.showHelp()
