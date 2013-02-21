@@ -24,6 +24,36 @@ class Layout
 
     return this
 
+  # STUB FOR SPENCER
+  store: ->
+
+  print: ->
+    out = [ 'ROLES:' ]
+    for name, role of @roles
+      out.push "  #{name}"
+      @printRole role, out
+    console.log out.join("\n")
+        
+  printRole: (role, out) ->
+    out.push  "    listens:"
+
+    i = 0
+    for name of role.ons
+      i++
+      out.push "      o " + name
+
+    out.pop() if i == 0
+
+    out.push  "    answers:"
+
+    i = 0
+    for name of role.answers
+      i++
+      out.push "      o " + name
+
+    out.pop() if i == 0
+
+   
 
   getRole: (name) ->
     @roles[name]

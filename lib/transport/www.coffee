@@ -13,3 +13,7 @@ module.exports = () ->
    app.use app.router
    app.use coffeescript({ src: ROOT + '/public', prefix: '/public', force: true })
    app.use express.static(ROOT + '/public')
+
+ app.get '/ping', (req, res) ->
+   res.writeHead 200, {}
+   res.end()

@@ -67,7 +67,6 @@ layout
       var key = packet.key;
       packet.ack(null);
     })
-
-  })
+  });
 
 module.exports = layout;
