@@ -18,10 +18,11 @@ class Foreman
     @www.listen @port
     console.log "forman is listening at port #{@port}"
 
-  runSteps: ->
+  run: ->
     console.log 'bootup sequence initiated'
     @checkController =>
       @register =>
+        @start()
       
   spawnController: ->
     console.log 'spawning controller'
@@ -35,6 +36,16 @@ class Foreman
 
   register: (cb) ->
     config.set 'register', cb
+
+  start: ->
+    layout = require @file
+    roleNames = layout.getRoleNames()
+    schema = ([r, 1] for r in roleNames)
+    @setSchema(schema)
+
+    i = 0
+    cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in@workers)
+    @setCluster cluster
 
   # array of [ role, count || 1 ]
   setSchema: (roles) ->
