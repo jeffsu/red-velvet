@@ -1,5 +1,5 @@
 Role  = require './role'
-#Store = require './store'
+Store = require './store'
 App   = require './app'
 
 # builder for Layout
