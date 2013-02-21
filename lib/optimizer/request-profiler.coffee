@@ -5,7 +5,7 @@
 # We capture two kinds of information here. The first is the raw timings per
 # request, and the second is the timings per byte of input.
 
-require './statistical-aggregator'
+StatisticalAggregator = require './statistical-aggregator'
 
 class RequestProfiler
   constructor: ->
@@ -37,3 +37,5 @@ class RequestProfiler
       time_aggregator.push elapsed_time
       rate_aggregator.push transfer_rate
       error_aggregator.push error_rate
+
+module.exports = RequestProfiler
