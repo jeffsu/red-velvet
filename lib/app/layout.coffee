@@ -26,10 +26,10 @@ class Layout
 
     return this
 
-  # STUB FOR SPENCER
-  store: (name, options, init) ->
-    store = new Store(name, options, init)
-    @stores[name] = store
+  store: (name, options, cb) ->
+    throw new Error("Store: '#{name}' already exists") if name in this
+    @stores[name] = this[name] = new Store(this, name, options, cb)
+    return this
 
   print: ->
     out = [ 'ROLES:' ]

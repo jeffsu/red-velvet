@@ -8,10 +8,12 @@ class StatisticalAggregator
     @n                     ||= 0
 
   push: (time) ->
+    time ||= 0
     @total += time
     @n++
     quantized_log = Math.round Math.log(1 + Math.abs time)
     until @quantized_log_buckets.length >= quantized_log
+      console.log 'you should see just a few of these'
       @quantized_log_buckets.push 0
     @quantized_log_buckets[quantized_log]++
 
