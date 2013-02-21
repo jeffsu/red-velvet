@@ -8,6 +8,7 @@ class StatisticalAggregator
     @n                     ||= 0
 
   push: (time) ->
+    time ||= 0
     @total += time
     @n++
     quantized_log = Math.round Math.log(1 + Math.abs time)

@@ -26,4 +26,10 @@ class Role
     cb.opts = opts
     @answers[name] = cb
 
+  get_migration_cost: (cb) ->
+    # Assume zero migration cost unless otherwise specified. Migration cost is
+    # measured as a linear factor of bytes. This function will be called fairly
+    # frequently.
+    cb(0)
+
 module.exports = Role

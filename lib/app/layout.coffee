@@ -1,5 +1,6 @@
-Role = require './role'
-App  = require './app'
+Role  = require './role'
+Store = require './store'
+App   = require './app'
 
 # builder for Layout
 class Layout
@@ -24,8 +25,10 @@ class Layout
 
     return this
 
-  # STUB FOR SPENCER
-  store: ->
+  store: (name, options, cb) ->
+    throw new Error("Store: '#{name}' already exists") if name in this
+    this[name] = new Store(this, name, options, cb)
+    return this
 
   print: ->
     out = [ 'ROLES:' ]
