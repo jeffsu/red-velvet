@@ -1,4 +1,6 @@
 request = require 'request'
+RequestProfiler = require '../optimizer/request-profiler'
+
 class Client
   constructor: (@host, @port) ->
     @base = "http://#{@host}:#{@port}"

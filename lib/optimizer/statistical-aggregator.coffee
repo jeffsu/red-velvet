@@ -23,3 +23,5 @@ class StatisticalAggregator
 
   toString: ->
     "mean: #{@average()}; n: #{@n}; distribution: #{@quantized_log_buckets}"
+
+module.exports = StatisticalAggregator

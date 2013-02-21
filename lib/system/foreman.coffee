@@ -1,4 +1,4 @@
-{fork} = require 'fs'
+{fork} = require 'child_process'
 
 WorkerShell = require './worker-shell'
 www = require '../transport/www'
@@ -12,24 +12,28 @@ class Foreman
     @www      = www()
 
     @www.get '/', (req, res) =>
-      res.render 'foreman', { foreman: this }
+      res.render 'foreman', foreman: this
 
     @www.listen @port
+    console.log "forman is listening at port #{@port}"
 
   runSteps: ->
     console.log 'bootup sequence initiated'
     @checkController =>
       @register =>
       
+  spawnController: ->
+    console.log 'spawning controller'
+    fork "#{__dirname}/controller-runner"
+    
   checkController: (cb) ->
     console.log 'checking controller'
-    config.getController (host) ->
-      if host == config.host
-        @spawnController
+    config.checkController (host) =>
+      @spawnController() if host is config.host
       cb()
 
   register: (cb) ->
-    config.set 'register', config, cb
+    config.set 'register', cb
 
   # array of [ role, count || 1 ]
   setSchema: (roles) ->
@@ -44,10 +48,6 @@ class Foreman
       for j in [1..count]
         @fork(role)
   
-  spawnController: =>
-    console.log 'spawning controller'
-    fork(__dirname + '/controller-runner')
-    
   killWorkers: ->
     w.kill() for w in @workers
     @workers.length = 0
