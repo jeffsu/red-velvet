@@ -6,6 +6,8 @@ transport = require '../transport'
 {Balancer}   = transport
 {ClientPool} = transport
 
+{WorkerHealth} = require '../meta'
+
 # what kicks off running in the worker
 class Worker
   constructor: (@transporter) ->

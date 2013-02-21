@@ -7,6 +7,9 @@ class Server extends EventEmitter
   constructor: ->
     @profiler = new RequestProfiler()
 
+  getMetadata: ->
+    return {}
+
   run: (port) ->
     return if @www
 

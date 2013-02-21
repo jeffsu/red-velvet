@@ -1,5 +1,3 @@
-process = require 'process'
-
 StatisticalAggregator = require '../optimizer/statistical-aggregator'
 
 INTERVAL = 1000
@@ -10,15 +8,16 @@ class WorkerHealth
 
     @startClientChecking()
 
-  sendMetaData: ->
-    process.send({ type: 'health', data: @getMetaData() })
+  sendMetadata: ->
+    process.send
+      type: 'health'
+      data: @getMetadata()
     
-  getMetaData: ->
-    return
-      clients:             @clientPool.getMetaData()
-      #server:              @server.getMetaData()
-      process_rss_memory:  @process_rss.toJSON()
-      event_latency:       @delay_samples.toJSON()
+  getMetadata: ->
+    clients:             @clientPool.getMetadata()
+    server:              @server.getMetadata()
+    process_rss_memory:  @process_rss.toJSON()
+    event_latency:       @delay_samples.toJSON()
 
 
 
@@ -30,7 +29,7 @@ class WorkerHealth
       start = now
 
       @process_rss.push(process.memoryUsage().rss)
-      @sendMetaData()
+      @sendMetadata()
 
 
     setInterval(check, INTERVAL)
