@@ -22,7 +22,6 @@ layout
 
   .role('line-reader', function (role) {
     role.on('line', function (packet, app) { 
-      console.log('----------------->line')
       app.emit('words', packet.data.split(/\s+/));
       packet.ack();
     });
@@ -32,7 +31,6 @@ layout
     var counts = {};
 
     role.on('words', function (packet, app) {
-      console.log('--------------->words')
       var words = packet.data;
       console.log("got words", words);
       for (var i=0; i<words.length; i++) {

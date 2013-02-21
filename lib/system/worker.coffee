@@ -38,10 +38,9 @@ class Worker
     # handle making requests
     @clientPool = new ClientPool()
 
-    @app.on 'emit', (emit, data) =>
-      for role in @layout.getRoleNamesFromEmit(emit)
-        client = @clientPool.choose role
-        client.requestEmit emit, data
+    @app.on 'emit', (emit, data, cb) =>
+      roles = getRoleNamesFromEmit(emit)
+      @clientPool.emit(emit, data, roles, cb)
 
     @app.on 'ask', (ask, data, cb) =>
       role   = @layout.getRoleNameFromAsk(ask)
