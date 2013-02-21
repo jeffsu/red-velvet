@@ -1,5 +1,5 @@
 INTERVAL = 1000
-class EventLoop
+class WorkerHealth
   constructor: (@clients) ->
     @delay = 0
     @startEventLoopChecking()
@@ -22,4 +22,4 @@ class EventLoop
 
     setInterval(check, INTERVAL)
     
-module.exports = EventLoop
+module.exports = WorkerHealth
