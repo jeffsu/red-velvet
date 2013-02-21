@@ -4,7 +4,8 @@ App  = require './app'
 # builder for Layout
 class Layout
   constructor: ->
-    @roles = {}
+    @roles  = {}
+    @stores = {}
 
     @emitsLookup = {}
     @asksLookup  = {}
@@ -25,7 +26,9 @@ class Layout
     return this
 
   # STUB FOR SPENCER
-  store: ->
+  store: (name, options, init) ->
+    store = new Store(name, options, init)
+    @store[name] = store
 
   print: ->
     out = [ 'ROLES:' ]
