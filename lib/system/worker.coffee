@@ -6,6 +6,8 @@ transport = require '../transport'
 {Balancer}   = transport
 {ClientPool} = transport
 
+{WorkerHealth} = require '../meta'
+
 # what kicks off running in the worker
 class Worker
   constructor: (@transporter) ->
@@ -34,9 +36,8 @@ class Worker
     @server.on 'ask', (packet) =>
       @app.handleAsk packet
 
-    @server.on 'migrate', (params) =>
-      @app.migrate params
-
+    @server.on 'migrate', (packet) =>
+      @app.migrate packet
 
     # handle making requests
     @clientPool   = new ClientPool()

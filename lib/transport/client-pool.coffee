@@ -7,8 +7,8 @@ class ClientPool
     @balancers = {}
     @clients   = []
 
-  getMetaData: ->
-    return @clients.map (c) -> c.getMetaData() 
+  getMetadata: ->
+    return (c.getMetadata() for c in  @clients)
 
   # [ [ host, port, [ ..roles.. ] ] ]
   setCluster: (data) ->

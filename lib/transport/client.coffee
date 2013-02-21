@@ -6,7 +6,7 @@ class Client
     @base = "http://#{@host}:#{@port}"
     @profiler = new RequestProfiler()
 
-  getMetaData: ->
+  getMetadata: ->
     return {}
 
   # emit with no stringify

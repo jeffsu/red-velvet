@@ -20,11 +20,12 @@ class ForemanHealth
     repeat = =>
       @load_average.push(os.loadavg()[0])       # always 1-minute average
       @free_memory.push(os.freemem())
-      @health = {free_memory:  @free_memory.toJSON,
-                 load_average: @load_average.toJSON}
+      @health =
+        free_memory:  @free_memory.toJSON()
+        load_average: @load_average.toJSON()
       setTimeout(run, INTERVAL)
 
-    run =>
+    run = =>
       @persister.saveHealth(@host, @health, repeat)
 
     run()
