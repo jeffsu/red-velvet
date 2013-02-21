@@ -26,6 +26,10 @@ class Role
     cb.opts = opts
     @answers[name] = cb
 
+  migrate_to: (hostport, packet) ->
+    # Default: do nothing; ack immediately
+    packet.ack()
+
   get_migration_cost: (cb) ->
     # Assume zero migration cost unless otherwise specified. Migration cost is
     # measured as a linear factor of bytes. This function will be called fairly

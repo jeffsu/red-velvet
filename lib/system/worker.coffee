@@ -36,9 +36,8 @@ class Worker
     @server.on 'ask', (packet) =>
       @app.handleAsk packet
 
-    @server.on 'migrate', (params) =>
-      @app.migrate params
-
+    @server.on 'migrate', (packet) =>
+      @app.migrate packet
 
     # handle making requests
     @clientPool   = new ClientPool()
