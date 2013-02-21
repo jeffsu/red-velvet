@@ -24,7 +24,7 @@ class Client
     request params, (err, r, body) =>
       console.log 'emit: ' + event + ' finished'
       cb(err) if cb
-      profile(err, body.length)
+      profile(err, body?.length)
 
   requestAsk: (event, data, cb) ->
     serialized = JSON.stringify(data)
