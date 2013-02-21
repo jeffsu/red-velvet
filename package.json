@@ -1,0 +1,28 @@
+{
+  "name": "red-velvet",
+  "version": "0.0.0",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "express": "~3.1.0",
+    "request": "~2.12.0",
+    "redis": "~0.8.2",
+    "coffee-script": "~1.4.0",
+    "connect-coffee-script": "~0.1.1",
+    "jade": "~0.28.1"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.4.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jeffsu/red-velvet"
+  },
+  "license": "BSD",
+  "description": "red-velvet =========="
+}

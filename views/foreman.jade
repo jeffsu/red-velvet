@@ -1,0 +1,16 @@
+extends layout
+block content
+  h3 Foreman: #{foreman.host}
+  h5 Workers
+  table.table.table-bordered
+    tr
+      th Port
+      th Role(s)
+    each worker in foreman.workers
+      tr
+        td= worker.port
+        td
+          each role, name in worker.roles
+            = name
+     
+

@@ -1,0 +1,29 @@
+!!!
+html
+    head
+        title Videos
+        link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
+
+        style
+          body {
+            margin-top: 60px
+          }
+
+    body
+        div.navbar.navbar-fixed-top
+            div.navbar-inner
+                div.container
+                    a(data-toggle='collapse',data-target='.nav-collapse').btn.btn-navbar
+                        span.icon-bar
+                        span.icon-bar
+                        span.icon-bar
+                    a(href='#').brand Videos
+                    div.nav-collapse
+                        ul.nav
+
+
+    div.container
+      block content
+
+    footer
+      p &copy; Company 2012

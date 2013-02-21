@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var rv   = require('../lib')
+var cwd  = process.cwd();
+var file = cwd + '/' + process.argv[2];
+
+var os = require('os');
+var ifaces = os.networkInterfaces();
+var addresses = []
+for (var dev in ifaces) {
+  var alias=0;
+  ifaces[dev].forEach(function(details){
+    if (details.family=='IPv4') {
+      addresses.push(details.address);
+      ++alias;
+    }
+  });
+}
+
+var layout    = require(file)
+var foreman   = new rv.Foreman(addresses[0], file);
+var roleNames = layout.getRoleNames();
+var schema    = roleNames.map(function (r) { return [ r, 1 ] });
+foreman.setSchema(schema)
+
+var i = 0;
+var cluster = foreman.workers.map(function (w) {
+  return [ w.host, w.port, [ roleNames[i++] ] ];
+});
+
+foreman.setCluster(cluster);
