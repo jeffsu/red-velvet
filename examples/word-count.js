@@ -5,10 +5,11 @@ layout
   .role('line-producer', function (role) {
     role.init(function (app) {
       function line() {
+        console.log('emit: line')
         app.emit('line', 'hello world');
       }
 
-      setInterval(line, 1000);
+      setInterval(line, 100);
 
       function ask() {
         console.log('asking word-count');
@@ -22,7 +23,6 @@ layout
 
   .role('line-reader', function (role) {
     role.on('line', function (packet, app) { 
-      console.log('----------------->line')
       app.emit('words', packet.data.split(/\s+/));
       packet.ack();
     });
@@ -32,7 +32,6 @@ layout
     var counts = {};
 
     role.on('words', function (packet, app) {
-      console.log('--------------->words')
       var words = packet.data;
       console.log("got words", words);
       for (var i=0; i<words.length; i++) {

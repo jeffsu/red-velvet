@@ -21,8 +21,10 @@ cp.add(c2, [ 'default' ])
 
 client = cp.choose('default')
 
-client.requestEmit 'hello', "world"
-client.requestAsk 'hello', "world", (err, answer) ->
+client.emit 'hello', "world", (err) ->
+  console.log 'got emit'
+
+client.ask 'hello', "world", (err, answer) ->
   console.log 'got answer: ' + answer
 
 setTimeout process.exit, 3000

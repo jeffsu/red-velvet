@@ -6,7 +6,7 @@ class Client
     @base = "http://#{@host}:#{@port}"
     @profiler = new RequestProfiler()
 
-  requestEmit: (event, data, cb) ->
+  emit: (event, data, cb) ->
     serialized = JSON.stringify(data)
     params =
       uri: @base + "/emit.json"
@@ -21,26 +21,30 @@ class Client
 
     profile = @profiler.start_timing(event, serialized.length)
 
+    console.log 'emit', event
     request params, (err, r, body) =>
+      console.log 'emitted', event
       console.log 'emit: ' + event + ' finished'
       cb(err) if cb
       profile(err, body?.length)
 
-  requestAsk: (event, data, cb) ->
+  ask: (question, data, cb) ->
     serialized = JSON.stringify(data)
     params =
       uri: @base + "/ask.json"
       pool:
         maxSockets: 10
       qs:
-        event: event
+        question: question
       method: 'PUT'
       form:
         data: serialized
 
-    profile = @profiler.start_timing(event, serialized.length)
+    profile = @profiler.start_timing(question, serialized.length)
 
+    console.log 'ask', question
     request params, (err, r, body) =>
+      console.log 'response', question
       cb(err, JSON.parse(body)) if cb
       profile(err, body.length)
 

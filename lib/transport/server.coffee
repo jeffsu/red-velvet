@@ -27,11 +27,11 @@ class Server extends EventEmitter
 
     # handle ask request
     @www.all "/ask.json", (req, res) =>
-      event   = req.query.event
-      data    = JSON.parse req.body.data
+      question = req.query.question
+      data     = JSON.parse req.body.data
 
-      profile = @profiler.start_timing(event, req.body.data.length)
-      packet  = new packets.AskPacket event, data, (err, answer) ->
+      profile = @profiler.start_timing(question, req.body.data.length)
+      packet  = new packets.AskPacket question, data, (err, answer) ->
         serialized = JSON.stringify(answer)
         profile(err, serialized.length)
         res.writeHead 200, {'content-type': 'text/json'}
