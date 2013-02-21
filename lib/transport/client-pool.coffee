@@ -5,6 +5,10 @@ Client   = require './client'
 class ClientPool
   constructor: ->
     @balancers = {}
+    @clients   = []
+
+  getMetaData: ->
+    return @clients.map (c) -> { c.getMetaData() }
 
   # [ [ host, port, [ ..roles.. ] ] ]
   setCluster: (data) ->
@@ -12,6 +16,7 @@ class ClientPool
       @add(new Client(row[0], row[1]), row[2])
 
   add: (client, roles) ->
+    @clients.push(client)
     for r in roles
       (@balancers[r] ||= new Balancer()).push(client)
 

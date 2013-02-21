@@ -24,6 +24,7 @@ class Worker
     @layout = require @env.RV_FILE
     @app    = new App()
 
+
     # handle receiving requests
     @server = new transport.Server()
 
@@ -33,9 +34,13 @@ class Worker
     @server.on 'ask', (packet) =>
       @app.handleAsk packet
 
+    @server.on 'migrate', (params) =>
+      @app.migrate params
+
 
     # handle making requests
-    @clientPool = new ClientPool()
+    @clientPool   = new ClientPool()
+    @workerHealth = new WorkerHealth(@clientPool, @server)
 
     @app.on 'emit', (emit, data, cb) =>
       roles = @layout.getRoleNamesFromEmit(emit)

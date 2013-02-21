@@ -12,6 +12,12 @@ class Server extends EventEmitter
 
     @www = require('./www')()
 
+    @www.post '/migrate', (req, res) =>
+      role = req.query.role
+      to   = req.query.to
+      @emit 'migrate', { role: role, to: to }
+
+
     # handle emit request
     @www.all "/emit.json", (req, res) =>
       event   = req.query.event

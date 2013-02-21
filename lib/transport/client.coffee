@@ -6,6 +6,9 @@ class Client
     @base = "http://#{@host}:#{@port}"
     @profiler = new RequestProfiler()
 
+  getMetaData: ->
+    return {}
+
   emit: (event, data, cb) ->
     serialized = JSON.stringify(data)
     params =
