@@ -13,7 +13,6 @@ class StatisticalAggregator
     @n++
     quantized_log = Math.round Math.log(1 + Math.abs time)
     until @quantized_log_buckets.length >= quantized_log
-      console.log "you should see just a few of these: #{@quantized_log_buckets.length} going to #{quantized_log}: #{time}"
       @quantized_log_buckets.push 0
     @quantized_log_buckets[quantized_log]++
 

@@ -36,10 +36,10 @@ class RequestProfiler
     start = Date.now()
     return (err, reply_size) =>
       @currently_active--
-      elapsed_time = Date.now() - start                 # ms
-      transfer_size = 1000 + body_size + reply_size     # bytes (+ 1kb of HTTP)
-      transfer_rate = transfer_size / elapsed_time      # bytes/ms
-      error_rate    = if err then 1 else 0              # errors/request
+      elapsed_time = Date.now() - start                  # ms
+      transfer_size = 1000 + body_size + reply_size      # bytes (+ 1kb of HTTP)
+      transfer_rate = transfer_size / (1 + elapsed_time) # bytes/ms
+      error_rate    = if err then 1 else 0               # errors/request
 
       time_aggregator.push elapsed_time
       rate_aggregator.push transfer_rate
