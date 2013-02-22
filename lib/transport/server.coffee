@@ -19,10 +19,15 @@ class Server extends EventEmitter
 
     @www = require('./www')()
 
+    @www.get '/', (req, res) =>
+      res.render 'worker'
+
     @www.get '/ask/:role/:question', (req, res) =>
       app.ask req.params.role, req.params.question, (err, answer) ->
+        res.writeHead 200, {}
         res.write answer
         res.end()
+
     @www.post '/migrate', (req, res) =>
       role = req.query.role
       to   = req.query.to
