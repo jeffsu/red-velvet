@@ -1,10 +1,15 @@
 extend layout
 block content
-  = JSON.stringify(grid)
-  - table = [[]]
-  table
-    each row in table
-      tr
-        each col in row
-          td= JSON.stringify(col)
-        
+  each host, ip in grid.hosts
+    h3= ip
+    table.table
+      each hash, port in host
+        tr
+          td= hash.type
+          td= port
+          td= hash.status
+          td= hash.file
+          td= hash.roles
+          td= hash.health
+
+      

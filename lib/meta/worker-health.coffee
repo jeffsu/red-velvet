@@ -3,17 +3,16 @@ StatisticalAggregator = require '../optimizer/statistical-aggregator'
 
 INTERVAL = 1000
 class WorkerHealth
-  constructor: (@clientPool, @server) ->
+  constructor: (@worker, @clientPool, @server) ->
     @process_rss   = new StatisticalAggregator()
     @delay_samples = new StatisticalAggregator()
 
     @startClientChecking()
 
   sendMetadata: ->
-    config.worker_log 'sending metadata'
-    process.send
-      type: 'health'
-      data: @getMetadata()
+    console.log 'sending metadata'
+    config.grid.write @worker.host, @worker.port, 'health',
+                      JSON.stringify @getMetadata()
 
   getMetadata: ->
     clients:            @clientPool.getMetadata()
@@ -33,7 +32,7 @@ class WorkerHealth
       @process_rss.push(process.memoryUsage().rss)
       @sendMetadata()
 
-    config.worker_log 'starting health loop'
+    console.log 'starting health loop'
     setInterval(check, INTERVAL)
 
 module.exports = WorkerHealth

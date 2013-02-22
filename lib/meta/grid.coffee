@@ -129,12 +129,15 @@ class Grid extends EventEmitter
 
   toTable: ->
     table = []
-    cols = [ "type", "status" ]
-    max  = 0
+    cols  = [ "type", "status" ]
+    max   = 0
+
     for ip, host of @hosts
-      row = table.push([ ip ])
+      row = [ ip ]
+      table.push([ ip ])
       for port, hash of host
-        row.push(hash)
+        for col in cols
+          row.push(hash[col])
       max = Math.max(max, row.length-1)
     table.cols = max
     return table

@@ -1,8 +1,9 @@
 {fork} = require 'child_process'
 
-WorkerShell = require './worker-shell'
-www    = require '../transport/www'
-config = require '../config'
+WorkerShell   = require './worker-shell'
+ForemanHealth = require '../meta/foreman-health'
+www           = require '../transport/www'
+config        = require '../config'
 
 INTERVAL = 1000
 class Foreman
@@ -14,6 +15,8 @@ class Foreman
     @port     = +config.port    # numeric coercion necessary here
     @workers  = {}              # a hash from port -> [[role, partition], ...]
     @www      = www()
+
+    @health_checker = new ForemanHealth(@)
 
     @www.get '/', (req, res) =>
       res.render 'foreman', foreman: this
@@ -96,15 +99,7 @@ class Foreman
         cpus: config.cpus
         totalmem: config.totalmem
     @grid.writeHash @host, @port, hash, =>
-      @persistHealth()
       cb() if cb
-
-  persistHealth: ->
-    saveHealth = =>
-      hash = {}
-      hash[port] = JSON.stringify w.getMetadata() for port, w of @workers
-      config.saveHealth hash
-    setInterval saveHealth, INTERVAL
 
   killWorkers: ->
     for port, w of @workers

@@ -67,16 +67,14 @@ switch command
   when 'clean'
     config.getClient (err, client) ->
       client.keys 'RV:*', (err, keys) ->
-        enqueued = 0
+        multi = client.multi()
         for k in keys
-          enqueued++
-          # Rebind to refer to the correct key within the closure
-          ((k) ->
-            client.del k, (err) ->
-              enqueued--
-              console.log "failed to delete existing key #{k}", err if err
-              process.exit() if enqueued == 0
-          )(k)
+          multi.del k
+        multi.exec (err) ->
+          console.log "finished"
+          client.end()
+          process.exit()
+
 
   else
     args.showHelp()
