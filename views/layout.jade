@@ -9,18 +9,34 @@ html
 
     :stylus
       body
-        margin-top: 20px
+        margin-top: 0px
 
   body
     :stylus
       body
         background-color black
         color #eee
-      h3
-        color red
+      h3, h5
+        color #730606
+
+      .slide
+        p
+          font-size 2em
+        h3
+          font-size 4em
+        h5
+          font-size 3em
+        ul
+          li
+            font-size 2em
+            padding 5px
+
+    
+    div(style="background-color: #730606; padding: 10px; margin-bottom: 10px")
+      .container
+        img(src="/logo.png")
 
     .container
-      h3 Red Velvet
       block content
 
     footer.container

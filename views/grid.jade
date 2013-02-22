@@ -1,0 +1,9 @@
+extend layout
+block content
+  - table = grid.toTable()
+  table
+    each row in table
+      tr
+        each col in row
+          td= JSON.stringify(col)
+        

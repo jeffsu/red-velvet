@@ -1,0 +1,102 @@
+extend layout
+
+block content
+  .slide
+    h3 Red Velvet
+    p
+      span Distributed computing framework for Node.js
+      ul
+        li Why?
+        li What?
+        li Demo
+  .slide
+    h5 Node: the good
+    ul
+      li Does simple things quickly
+      li Does lots of simple things quickly
+      li Coordinates between lots of simple things
+
+  .slide
+    h5 Node: the bad
+    ul
+      li Does complicated things slowly
+      li Does few complicated things slowly
+
+  .slide
+    h5 Problems
+    ul
+      li Lack of simple load balancing
+      li Distributing complicated tasks is not trivial
+      li No viable native Node.js solution
+
+  .slide
+    h3 What?
+    h5 Easy configuration
+    pre.
+      var layout = new Layout();
+      layout.role('line-producer', function (role) {
+        role.init(function (app) {
+          app.emit('line', 'this is a line')
+        });
+      });
+
+      layout.role('line-parser', function (role) {
+        role.on('line', function (packet, data) {
+          app.emit('words', packet.data.split(/\s+/));
+          packet.ack()
+        });
+      });
+
+      layout.role('word-counter', function (role) {
+        var wordCounts = {};
+        role.on('words', function (packet, data) {
+          var words = packet.data;
+          for (var i=0; i<words.length; i++) {
+             var word = words[i];
+             wordCounts[word] = (wordCounts[word] || 0) + 1
+          }
+          packet.ack();
+        });
+      });
+
+  .slide
+    h3 What?
+    h5 Ask and Answer
+    pre.
+      app.ask("word-count", "hello", function (err, answer) {
+        console.log("Got " + answer); 
+      });
+
+      ...
+
+      role.answer('word-count', function (packet, data) {
+        packet.answer(null, wordCounts[packet.data] || 0);
+      });
+  .slide
+    h3 What?
+    h5 Partitioning
+    pre.
+      layout.role('word-counter', { partitions: 5, hash: rv.hash }, function (role) {
+        var wordCounts = {};
+        role.on('word', function (packet, data) {
+          wordCounts[word] = (wordCounts[word] || 0) + 1
+        });
+
+        role.answer('word', function (packet, data) {
+          packet.answer('word-count', wordCounts[packet.data]);
+        });
+      });
+  .slide
+    h3 Demo
+
+  .slide
+  script
+    $(function () {
+      var $slides = $('.slide').hide();
+      var idx = 0;
+      var n   = $slides.length;
+
+      $(document).click(function () {
+        $($slides[idx++%n]).fadeIn().siblings().hide();
+      });
+     });

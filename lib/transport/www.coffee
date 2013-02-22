@@ -18,6 +18,9 @@ module.exports = () ->
  app.get '/ping', (req, res) ->
    res.writeHead 200, {}
    res.end()
+
+ app.get '/grid', (req, res) ->
+   res.render 'grid', { grid: config.grid }
  
  app.get '/layout', (req, res) ->
    layout = require(config.file)

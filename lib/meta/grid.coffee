@@ -116,6 +116,20 @@ class Grid extends EventEmitter
         else
           cb(null) if cb
 
+  toTable: ->
+    table = []
+    cols = [ "type", "status" ]
+    max  = 0
+    for ip, host of @hosts
+      row = table.push([ ip ])
+      for port, hash of host
+        row.push(hash)
+      max = Math.max(max, row.length-1)
+    table.cols = max
+    return table
+
+
+     
   play: (results, cb) ->
     changedHosts = {}
     for json in results.reverse()
