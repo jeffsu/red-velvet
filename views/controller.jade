@@ -39,6 +39,9 @@ block content
       th Health
     each ports,host in hosts
       each hash,port in ports
-        if hash.type == 'workers'
+        if hash.type == 'worker'
           tr
             td= host + ":" + port
+            td= JSON.stringify(hash.roles)
+            td= JSON.stringify(bottlenecks[host])
+            td= JSON.stringify(hash.health)

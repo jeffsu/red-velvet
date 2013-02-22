@@ -76,8 +76,7 @@ class Grid extends EventEmitter
   destroy:  (host, port, cb) -> @write host, port, 'nuke', 'true', cb
 
   allocate: (host, port, roles, cb) ->
-    @write host, port, 'roles', roles, =>
-      @write host, port, 'status', 'spinup', cb
+    @writeHash host, port, {roles: roles, type: 'worker', status: 'spinup'}, cb
 
   port_for: (host) ->
     port = config.port + 2

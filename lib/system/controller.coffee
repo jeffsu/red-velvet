@@ -11,7 +11,12 @@ class Controller
     console.log 'starting controller'
     @www = www()
     @www.get '/', (req, res) =>
-      res.render('controller', controller: this, config: config, hosts: @grid.hosts)
+      console.log @grid.hosts
+      res.render 'controller',
+        controller: this
+        config: config
+        hosts: @grid.hosts
+        bottlenecks: @bottlenecks
 
     @www.get '/workers/:host/:port', (req, res) =>
       port = req.params.port
@@ -21,7 +26,6 @@ class Controller
     @www.post '/workers/:host/:port', (req, res) =>
       # TODO
       res.end()
-
 
     @www.listen(config.port + 1)
 
