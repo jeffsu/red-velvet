@@ -35,7 +35,7 @@ layout   = new Layout()
 
       ask = ->
         console.log 'asking average duration'
-        apikey = null
+        apikey = 'every'
         app.ask 'avg-duration', apikey, (err, answer) ->
           console.log answer
 
@@ -57,18 +57,28 @@ layout   = new Layout()
       packet.ack()
   
   .role 'avg-duration', (role) ->
-    counts = 0
-    durations = 0
+    counts = { every: 0 }
+    durations = { every: 0 }
     role.on 'log-data', (packet, app) ->
       data = packet.data
-      counts++
-      duration += data.duration
-      console.log 'counts', counts
+      counts[data.key] ?= 0
+      counts[data.key]++
+      counts.every++
+
+      durations[data.key] ?= 0
+      durations[data.key] += data.duration
+      durations.every += data.duration
+
+      console.log 'key counts', counts.length
       packet.ack()
 
     role.answer 'avg-duration', (packet, app) ->
       console.log 'got question'
-      apikey = packet.data # TODO
-      pakcet.answer null, counts ? 0 : durations/counts
+      apikey = packet.data
+
+      count = counts[apikey]
+      duration = durations[apikey]
+
+      pakcet.answer null, count ? 0 : duration/count
 
 module.exports = layout
