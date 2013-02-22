@@ -25,10 +25,10 @@
 
 StatisticalAggregator = require './statistical-aggregator'
 
-FREE_MEMORY_TARGET       = 0.2          # 20% of memory is free
+FREE_MEMORY_TARGET       = 0.2          # >= 20% of memory is free
 EVENT_LOOP_PURITY_TARGET = 0.8          # dimensionless, 0 <= x <= 1
 EVENT_LOOP_SHIFT         = 4            # powers of 2 (< 16ms is fine)
-TRANSFER_TIME_LIMIT      = 0.8          # 80% of request time is network
+NETWORK_LOSS_TARGET      = 0.7          # <= 70% of request time is network
 
 class GridOptimizer
   constructor: ->
@@ -40,15 +40,71 @@ class GridOptimizer
   #  ...}
   #
   # Each bottleneck metric is in the range [0, 1], with 1 being the slowest.
-  bottlenecks: (grid) ->
+  bottlenecks: (grid, network_analyses = @network_analyses(grid)) ->
     result = {}
     for host, row of grid
       for port, cell of row
-        result["#{host}:#{port}"] =
-          network:   @network_loss_badness(grid, cell)
-          memory:    @memory_badness(grid, cell)
-          eventloop: @event_loop_badness(grid, cell)
+        cell_id = "#{host}:#{port}"
+        if network_analyses[cell_id]
+          result[cell_id] =
+            network:   @network_loss_badness(network_analyses[cell_id])
+            memory:    @memory_badness(grid, cell)
+            eventloop: @event_loop_badness(grid, cell)
     result
+
+  # General analyses used to make routing decisions
+  network_analyses: (grid) ->
+    result = {}
+    for c in @all_cells(grid, (cell) -> !!cell.health)
+      result["#{c.host}:#{c.port}"] = @network_analysis(grid, c)
+    result
+
+  network_analysis: (grid, server) ->
+    server_total   = new StatisticalAggregator()
+    server_profile = server.health.server_profile
+    for role, stats of server_profile
+      server_total = server_total.plus(StatisticalAggregator.fromJSON stats)
+
+    # Now gather up client-side statistics.
+    all_clients_total = new StatisticalAggregator()
+    clients = @all_cells (cell, host, port) ->
+      !(host == server.host && port == server.port)
+
+    client_distribution = new StatisticalAggregator()
+    role_distribution   = new StatisticalAggregator()
+    client_totals       = {}
+    role_totals         = {}
+
+    for c in clients
+      if stats_for_server = c.client_profiles["#{server.host}:#{server.port}"]
+        client_id         = "#{c.host}:#{c.port}"
+        this_client_total = new StatisticalAggregator()
+
+        for role, stats of stats_for_server
+          stats = StatisticalAggregator.fromJSON stats
+          role_totals[role] ||= new StatisticalAggregator()
+          role_totals[role] = role_totals[role].plus stats
+          client_distribution.push stats.average()
+
+          this_client_total = this_client_total.plus stats
+          all_clients_total = all_clients_total.plus stats
+
+        client_totals[client_id] = this_client_total
+
+    role_averages = {}
+    role_averages[r] = v.average() for r, v of role_totals
+
+    client_averages = {}
+    client_averages[c] = v.average() for c, v of client_totals
+
+    server_time = server_total.average()
+    client_time = all_clients_total.average()
+
+    loss_ratio:      1.0 - (server_time / Math.max(server_time, client_time))
+    role_impurity:   role_distribution.impurity()
+    client_impurity: client_distribution.impurity()
+    role_averages:   role_averages
+    client_averages: client_averages
 
   # Specific bottleneck measurements
   memory_badness: (grid, host) ->
@@ -57,40 +113,25 @@ class GridOptimizer
     return 0 if free_ratio > FREE_MEMORY_TARGET
     return 1.0 - (free_ratio / FREE_MEMORY_TARGET)
 
-  network_loss_badness: (grid, server) ->
-    server_total   = new StatisticalAggregator()
-    server_profile = server.health.server_profile
-    for role, stats of server_profile
-      server_total = server_total.plus(StatisticalAggregator.fromJSON stats)
-
-    # Now gather up client-side statistics.
-    client_total = new StatisticalAggregator()
-    clients      = @all_cells (cell, host, port) ->
-      !(host == server.host && port == server.port)
-
-    for c in clients
-      if stats_for_server = c.client_profiles["#{server.host}:#{server.port}"]
-        for role, stats of stats_for_server
-          client_total = client_total.plus(StatisticalAggregator.fromJSON stats)
-
-    server_time = server_total.total
-    client_time = client_total.total
-    return 1.0 - (server_time / Math.max(server_time, client_time))
-
   event_loop_badness: (grid, server) ->
-    purity = 1.0 - StatisticalAggregator().fromJSON(server.event_latency)
-                                          .shifted_by(EVENT_LOOP_SHIFT)
-                                          .impurity()
+    purity = 1.0 - StatisticalAggregator().fromJSON(server.event_latency).
+                                           shifted_by(EVENT_LOOP_SHIFT).
+                                           impurity()
 
     return 0.0 if purity >= EVENT_LOOP_PURITY_TARGET
     return 1.0 - (purity / EVENT_LOOP_PURITY_TARGET)
+
+  network_loss_badness: (network_analysis) ->
+    loss = network_analysis.loss_ratio
+    return 0.0 if loss <= NETWORK_LOSS_TARGET
+    return (loss - NETWORK_LOSS_TARGET) / (1.0 - NETWORK_LOSS_TARGET)
 
   # Cell retrieval functions
   all_cells: (grid, filter) ->
     result = []
     for host, row of grid
       for port, cell of row
-        result.push cell if filter cell, host, port
+        result.push cell if !filter || filter cell, host, port
     result
 
   foreman_for: (grid, host) ->
