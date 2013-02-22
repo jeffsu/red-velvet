@@ -76,20 +76,21 @@ class GridOptimizer
     role_totals         = {}
 
     for c in clients
-      if stats_for_server = c.client_profiles["#{server.host}:#{server.port}"]
-        client_id         = "#{c.host}:#{c.port}"
-        this_client_total = new StatisticalAggregator()
+      if c.client_profiles
+        if stats_for_server = c.client_profiles["#{server.host}:#{server.port}"]
+          client_id         = "#{c.host}:#{c.port}"
+          this_client_total = new StatisticalAggregator()
 
-        for role, stats of stats_for_server
-          stats = StatisticalAggregator.fromJSON stats
-          role_totals[role] ||= new StatisticalAggregator()
-          role_totals[role] = role_totals[role].plus stats
-          client_distribution.push stats.average()
+          for role, stats of stats_for_server
+            stats = StatisticalAggregator.fromJSON stats
+            role_totals[role] ||= new StatisticalAggregator()
+            role_totals[role] = role_totals[role].plus stats
+            client_distribution.push stats.average()
 
-          this_client_total = this_client_total.plus stats
-          all_clients_total = all_clients_total.plus stats
+            this_client_total = this_client_total.plus stats
+            all_clients_total = all_clients_total.plus stats
 
-        client_totals[client_id] = this_client_total
+          client_totals[client_id] = this_client_total
 
     role_averages = {}
     role_averages[r] = v.average() for r, v of role_totals
