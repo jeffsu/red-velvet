@@ -60,7 +60,7 @@ class Foreman
     @persistHealth()
 
     i = 0
-    cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in @workers)
+    cluster = ([ w.host, w.port, [ [roleNames[i++] ]] ] for w in @workers)
     @setCluster cluster
 
   persistHealth: ->
