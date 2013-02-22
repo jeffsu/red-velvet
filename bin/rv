@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('coffee-script')
-require('../lib/main-runner')
+require('../lib/cli')
