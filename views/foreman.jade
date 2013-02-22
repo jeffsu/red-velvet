@@ -6,9 +6,11 @@ block content
     tr
       th Port
       th Role(s)
+      th Health
     each worker in foreman.workers
       tr
         td= worker.port
         td
           each role, name in worker.roles
             = name
+        td= JSON.stringify(worker.getMetadata())

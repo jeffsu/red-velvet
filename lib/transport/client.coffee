@@ -7,7 +7,7 @@ class Client
     @profiler = new RequestProfiler()
 
   getMetadata: ->
-    return {}
+    base: @base
 
   emit: (event, data, cb) ->
     serialized = JSON.stringify(data)
