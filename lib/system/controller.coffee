@@ -32,13 +32,18 @@ class Controller
 
     unless @initialized_workers
       @initialized_workers = true
+      reserved = {}
       machine = 0
       for name, role of config.layout.roles
         for i in [0...role.partitions]
           (->
             f    = foremen[machine++ % foremen.length]
             host = f.host
-            port = grid.port_for(f.host)
+            port = grid.port_for(host)
+
+            # Hack for initialization
+            port++ while reserved["#{host}:#{port}"]
+            reserved["#{host}:#{port}"] = true
 
             console.log "allocating #{name}:#{i} on #{host}:#{port}"
             grid.allocate host, port, [[name, i]], ->
