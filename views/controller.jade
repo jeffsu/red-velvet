@@ -16,7 +16,7 @@ block content
           td OK
 
   div= JSON.stringify(hosts)
-  h5 Registrations
+  h5 Machines
     table.table.table-bordered
       tr
         th IP/port
@@ -31,7 +31,7 @@ block content
               td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
 
 
-  h5 Managed workers
+  h5 Workers
     table.table.table-bordered
       tr
         th IP/port
