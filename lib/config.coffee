@@ -38,11 +38,17 @@ class Config
     @redis    = 'redis://127.0.0.1:6379'
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
+    @grid     = new Grid()
 
   set: (args) ->
     for k, v in args
       this[k] = v
 
+  getNewClient: (cb) ->
+    client = redis.createClient(u.port, u.hostname)
+    client.on 'ready', =>
+      console.log 'redis ready'
+      cb(null, client)
 
   getClient: (cb) ->
     if @clientReady

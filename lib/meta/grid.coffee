@@ -13,10 +13,12 @@ update_cell = """
 
   local grid_key = namespace .. ":" .. worker
 
-  local journal_val = cjson.encode({ host = host, port = port, key = key, value = value })
+  local len         = redis.call("LLEN", "RV:GRID:JOURNAL") + 1
+  local journal_val = cjson.encode({ host = host, port = port, key = key, value = value, length = len })
 
   redis.call("HSET", grid_key, key, value)
   redis.call("LPUSH", "RV:GRID:JOURNAL", journal_val)
+  redis.call("PUBLISH", "RV:GRID", journal_val)
   return redis.call("LLEN", "RV:GRID:JOURNAL")
 """
 
@@ -33,10 +35,22 @@ update_grid = """
   end
 """
 
-class Grid
+{EventEmitter} = require 'events'
+
+class Grid extends EventEmitter
   constructor: ->
     @hosts = {}
     @version = 0
+
+  actAsForeman: ->
+    config.getNewClient: (err, client) =>
+      client.subscribe "RV:GRID"
+      client.on 'message', (ch, json) =>
+        @play([ json ])
+        
+    @update()
+    repeat = => @update()
+    setTimeout repeat, 10000
 
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) ->
@@ -79,5 +93,6 @@ class Grid
       hash = JSON.parse json
       ((@hosts[hash.host] ||= {})[hash.port] ||= {})[hash.key] = hash.value
     cb(null) if cb
+    @emit "updated"
 
 module.exports = Grid
