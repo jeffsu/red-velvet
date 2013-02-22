@@ -57,7 +57,7 @@ class Config
 
   get: (type, cb) ->
     @getClient (err, client) =>
-      client.get KEYS.type, (err, result) ->
+      client.get KEYS[type], (err, result) ->
         if result
           cb(null, JSON.parse result)
         else
@@ -75,11 +75,12 @@ class Config
 
     @getClient (err, client) =>
       str = JSON.stringify data
-      client.set KEYS.type, str, (err) ->
+      client.set KEYS[type], str, (err) ->
         cb(err) if cb
 
-  saveGrid: (port, key, data) ->
-    workerKey = "#{KEYS.grid}:#{port}"
-    @client.hset workerKey, key, JSON.stringify(data)
+  # grid: {port: {migration_state: '...', roles: [...], health: {...}}}
+  saveGrid: (grid) ->
+    cmds = (['hmset', "#{KEYS.grid}:#{port}", hash] for port,hash of grid)
+    @client.multi cmds
 
 module.exports = new Config()
