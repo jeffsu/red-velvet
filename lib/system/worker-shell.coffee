@@ -6,9 +6,10 @@ class WorkerShell extends EventEmitter
   constructor: (@host, @port, @file) ->
     @env = {}
     @env[k] = v for v, k in process.env
-    @env.RV_HOST = @host
-    @env.RV_PORT = @port
-    @env.RV_FILE = @file
+    @env.RV_HOST   = @host
+    @env.RV_PORT   = @port
+    @env.RV_FILE   = @file
+    @env.RV_TYPE   = 'worker'
     @child = null
     @roles = {}
     @fork()
@@ -25,7 +26,14 @@ class WorkerShell extends EventEmitter
     @child.send(data) if @child
 
   fork: ->
-    @child = fork __dirname + "/worker-runner.js", { env: @env }
+    @child = fork __dirname + "/worker-runner.js", { env: @env, silent: true }
+
+    @child.stderr.on 'data', (chunk) ->
+      config.worker_log chunk.toString().trim()
+
+    @child.stdout.on 'data', (chunk) ->
+      config.worker_log chunk.toString().trim()
+
     for r in @roles
       @assume r
 

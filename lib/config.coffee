@@ -4,7 +4,6 @@ cwd   = process.cwd()
 os    = require 'os'
 redis = require 'redis'
 url   = require 'url'
-Grid  = require './meta/grid'
 
 getHost = ->
   ifaces = os.networkInterfaces()
@@ -47,10 +46,16 @@ class Config
     @env      = env.RV_ENV || 'local'
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
-    @grid     = new Grid(this)
 
-  getLayout: ->
-    @layout ||= require @file
+    @isForeman    = env.RV_TYPE == 'foreman'
+    @isWorker     = env.RV_TYPE == 'worker'
+    @isController = env.RV_TYPE == 'controller'
+
+  start: ->
+    return if @layout
+    Grid    = require './meta/grid'
+    @grid   = new Grid()
+    @layout = require @file
 
   set: (args) ->
     for k, v in args
