@@ -43,7 +43,7 @@ class Grid extends EventEmitter
     @version = 0
 
   actAsForeman: ->
-    config.getNewClient: (err, client) =>
+    config.getNewClient (err, client) =>
       client.subscribe "RV:GRID"
       client.on 'message', (ch, json) =>
         @play([ json ])
