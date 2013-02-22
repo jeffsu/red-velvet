@@ -20,6 +20,7 @@ block content
     tr
       th IP/port
       th CPUs
+      th Free memory
       th Total memory
     each ports,host in hosts
       each hash,port in ports
@@ -27,8 +28,8 @@ block content
           tr
             td= host + ":" + port
             td= hash.hardware.cpus
+            td= Math.round(hash.health.free_memory / 1048576) + "MB"
             td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
-
 
   h5 Workers
   table.table.table-bordered
@@ -36,6 +37,8 @@ block content
       th IP/port
       th Roles
       th Status
+      th Event loop latency
+      th RSS
     each ports,host in hosts
       each hash,port in ports
         if hash.type == 'worker'
@@ -43,6 +46,8 @@ block content
             td= host + ":" + port
             td= hash.roles.map(function (x) {return x[0]}).join(', ')
             td= hash.status
+            td= Math.round(hash.health.event_latency.total / hash.health.event_latency.n) + "ms"
+            td= Math.round((hash.health.process_rss_memory.total / hash.health.process_rss_memory.n) / 1048576) + "MB"
 
   h5 Health
   table.table.table-bordered
