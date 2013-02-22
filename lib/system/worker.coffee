@@ -21,6 +21,7 @@ class Worker
     if role = @layout.getRole roleName
       console.log "worker #{@host}:#{@port} is assuming role #{roleName}[#{part}]"
       @app.assume role, part
+      config.grid.write @host, @port, 'status', 'active'
 
   # connect the dots
   setup: ->
