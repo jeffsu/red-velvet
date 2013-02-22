@@ -13,7 +13,9 @@ class ClientPool
   profile_data: ->
     return (c.profile_data() for c in @clients)
 
-  # [ [ host, port, [ ..roles.. ] ] ]
+  # [ 
+  #   [ host, port, [ role, part ], [role] ] 
+  # ]
   setCluster: (data) ->
     for row in data
       @add(new Client(row[0], row[1]), row[2])

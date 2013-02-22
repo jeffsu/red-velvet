@@ -65,8 +65,9 @@ class Foreman
 
   persistHealth: ->
     saveHealth = =>
-      (grid ?= {})[w.port] = JSON.stringify w.getMetadata() for w in @workers
-      config.saveHealth grid
+      hash = {}
+      hash[w.port] = JSON.stringify w.getMetadata() for w in @workers
+      config.saveHealth hash
     setInterval saveHealth, INTERVAL
 
   # array of [ role, count || 1 ]

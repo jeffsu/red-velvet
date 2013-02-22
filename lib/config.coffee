@@ -32,7 +32,6 @@ KEYS =
   register: "RV:REGISTER:#{host}"
   health:   "RV:HEALTH:#{host}"
   
-Grid = require './meta/grid'
 class Config
   constructor: ->
     @host     = host
@@ -86,8 +85,8 @@ class Config
         cb(err) if cb
 
   # health: {port: {...}}}
-  saveHealth: (health) ->
-    cmds = (['hmset', "#{KEYS.health}:#{port}", hash] for port,hash of health)
+  saveHealth: (hash) ->
+    cmds = (['set', "#{KEYS.health}:#{port}", json] for port,json of hash)
     @client.multi cmds
 
 module.exports = new Config()
