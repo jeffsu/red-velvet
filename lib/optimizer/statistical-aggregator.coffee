@@ -9,7 +9,8 @@ class StatisticalAggregator
   push: (time = 0) ->
     @total += time
     @n++
-    quantized_log = Math.round(Math.log(1 + Math.abs time) / LOG_2)
+    quantized_log = Math.round(Math.log(1 + Math.abs time) / LOG_2) || 0
+    quantized_log = Math.min(quantized_log, 1000)
     until @quantized_log_buckets.length > quantized_log
       @quantized_log_buckets.push 0
     @quantized_log_buckets[quantized_log]++
