@@ -18,6 +18,14 @@ class Controller
         bottlenecks: @bottlenecks
         network_analyses: @network_analyses
 
+    @www.get '/debug', (req, res) =>
+      res.render 'controller-debug',
+        controller: this
+        config: config
+        hosts: @grid.hosts
+        bottlenecks: @bottlenecks
+        network_analyses: @network_analyses
+
     @www.get '/workers/:host/:port', (req, res) =>
       port = req.params.port
       host = req.params.host
