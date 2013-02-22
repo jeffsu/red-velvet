@@ -14,7 +14,7 @@ class WorkerShell extends EventEmitter
     @fork()
 
   getMetadata: =>
-    @metadata
+    @metadata || null
 
   assume: (role, part) ->
     if !@roles[role]

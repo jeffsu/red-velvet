@@ -13,16 +13,14 @@ class Controller
     @www.get '/', (req, res) =>
       res.render('controller', controller: this, config: config)
 
-    @www.listen(+config.port + 1)
+    @www.listen(config.port + 1)
 
     @profiler               = new RequestProfiler()
     @optimizer              = new GridOptimizer()
-    @awaiting_grid          = false
-    @awaiting_registration  = false
     @previous_machine_count = 0
 
     @registration = []
-    @grid         = {}
+    @grid         = config.grid
 
     update = => @update()
     setInterval(update, INTERVAL)
@@ -30,96 +28,17 @@ class Controller
 
   # This is the entry point for grid manipulation.
   manage: (grid, registration) ->
-    if @previous_machine_count > 0
-      # We've already got machines provisioned. Just make sure we've still got
-      # them; otherwise start over when we get new ones.
-      unless @previous_machine_count = registration.length      # assign [sic]
-        return config.controller_log 'not rearranging empty grid!'
-
-      config.controller_log 'optimizing the grid (TODO)'
-      @optimize grid, registration
-    else
-      # A new grid, so we need to initialize it with some roles. We can do this
-      # only when we have registrations.
-      unless registration.length
-        return config.controller_log 'awaiting registrations'
-
-      # Ok, now we have some nodes. Disperse roles evenly in the absence of
-      # more specific information. An invariant is that there exists at least
-      # one worker to handle each role (though a worker can handle more than
-      # one role at a time).
-      machine_index = 0
-      layout        = config.getLayout()
-      machines      = ([] for r in registration)
-
-      # Initially start up a new worker for each role on the machine. Later on
-      # we can consolidate if we observe low free memory.
-      cluster = []
-      for name, role of layout.roles
-        for i in [0...role.partitions]
-          index  = machine_index++ % machines.length
-          reg    = registration[index]
-          worker =
-            host:  reg.host
-            port:  reg.port + machines[index].length + 2
-            roles: [[name, i]]
-
-          machines[index].push worker
-          cluster.push worker
-
-      # Set up the systems.
-      for r, i in registration
-        m = machines[i]
-        for w in m
-          request
-            uri:    "http://#{r.host}:#{r.port}/assign.json"
-            method: 'POST'
-            form:
-              data: JSON.stringify {roles: w.roles, port: w.port}
-
-      # Commit the cluster.
-      for r in registration
-        request
-          uri:    "http://#{r.host}:#{r.port}/set-cluster.json"
-          method: 'POST'
-          form:
-            data: JSON.stringify cluster
-
-      @previous_machine_count = registration.length
-
-  # Optimization happens when we have an already-configured grid and need to
-  # rearrange it. If we've just booted up, optimize is not called.
-  optimize: (grid, registration) ->
-    # Get the new grid from the optimizer...
-    new_grid = @optimizer.optimize(grid, registration)
-
-    # ... and apply the diffs to the foreman nodes.
-    config.controller_log "applying changes (TODO)"
 
   update: ->
-    if @awaiting_grid || @awaiting_registration
-      config.controller_log 'not updating; awaiting more data'
-      return
+    # Synchronize the grid if we're not already doing so.
+    return if @awaiting_grid
+    @awaiting_grid = Date.now()
 
-    @awaiting_grid         = Date.now()
-    @awaiting_registration = Date.now()
-
-    config.controller_log @profiler.toJSON()
-
-    register_profile = @profiler.start_timing('register', 0)
-    config.getAll 'register', (err, registration) =>
+    profile = @profiler.start_timing 'grid-sync', 0
+    @grid.sync (err) =>
+      profile err, 0
       config.print_if err
-      register_profile(null, 0)
-      @awaiting_registration = false
-      @registration          = registration
-      @manage @grid, @registration unless @awaiting_grid
-
-    register_grid = @profiler.start_timing('grid', 0)
-    config.getAll 'health', (err, grid) =>
-      config.print_if err
-      register_grid(null, 0)
       @awaiting_grid = false
-      @grid          = grid
-      @manage @grid, @registration unless @awaiting_registration
+      @manage grid
 
 module.exports = Controller

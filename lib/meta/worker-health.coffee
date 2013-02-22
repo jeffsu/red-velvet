@@ -1,3 +1,4 @@
+config                = require '../config'
 StatisticalAggregator = require '../optimizer/statistical-aggregator'
 
 INTERVAL = 1000
@@ -9,17 +10,18 @@ class WorkerHealth
     @startClientChecking()
 
   sendMetadata: ->
+    config.worker_log 'sending metadata'
     process.send
       type: 'health'
       data: @getMetadata()
 
   getMetadata: ->
-    clients:             @clientPool.getMetadata()
-    server:              @server.getMetadata()
-    process_rss_memory:  @process_rss.toJSON()
-    event_latency:       @delay_samples.toJSON()
-    server_profile:      @server.profile_data()
-    client_profiles:     @clientPool.profile_data()
+    clients:            @clientPool.getMetadata()
+    server:             @server.getMetadata()
+    process_rss_memory: @process_rss.toJSON()
+    event_latency:      @delay_samples.toJSON()
+    server_profile:     @server.profile_data()
+    client_profiles:    @clientPool.profile_data()
 
   startClientChecking: ->
     start = Date.now()
@@ -31,6 +33,7 @@ class WorkerHealth
       @process_rss.push(process.memoryUsage().rss)
       @sendMetadata()
 
+    config.worker_log 'starting health loop'
     setInterval(check, INTERVAL)
 
 module.exports = WorkerHealth
