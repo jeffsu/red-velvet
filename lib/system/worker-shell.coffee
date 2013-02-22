@@ -18,7 +18,7 @@ class WorkerShell extends EventEmitter
 
   assume: (role) ->
     if !@roles[role]
-      @child.send({ type: 'assume', role: role })
+      @child.send({ type: 'assume', role: role})
       @roles[role] = true
 
   send: (data) ->

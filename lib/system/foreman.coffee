@@ -18,26 +18,29 @@ class Foreman
     @www.get '/', (req, res) =>
       res.render 'foreman', foreman: this
 
-    @www.get '/allocate.json', (req, res) =>
-      # Body of the request is structured like this:
-      # [{port: X, role: Y}, ...]
-      machines = JSON.parse req.body.data
-      for {port, role} in machines
-        @fork()
+    @www.post '/assign', (req, res) =>
+      roles = req.body
+      @killWorkers()
+      @addWorker roles
 
       # Workers are synchronous; once instantiated, we're good
+      res.writeHead 200, {}
+      res.end()
+
+    @www.post '/set-cluster', (req, res) =>
+      cluster = req.body
+      @setCluster cluster
+
       res.writeHead 200, {}
       res.end()
 
     @www.listen @port
     console.log "forman is listening at port #{@port}"
 
-
   run: ->
     console.log 'bootup sequence initiated'
     @checkController =>
       @register =>
-        @start()
       
   spawnController: ->
     console.log 'spawning controller'
@@ -51,26 +54,8 @@ class Foreman
 
   register: (cb) ->
     config.set 'register', cb
-
-  start: ->
-    layout = config.layout
-    roles = []
-    for name, role of layout.roles
-      console.log name, role.partitions
-      for i in [ 0..role.partitions-1 ]
-        roles.push role.name, i
-
-    @fork()
-    @fork()
-
-    console.log(roles, '---------------')
-    #@setSchema(roles)
-
-    #@persistHealth()
-
-    i = 0
-    cluster = ([ w.host, w.port, [ roles[i] ] ] for w, i in @workers)
-    @setCluster(cluster)
+    @persistHealth()
+    cb() if cb
 
   persistHealth: ->
     saveHealth = =>
@@ -79,27 +64,18 @@ class Foreman
       config.saveHealth hash
     setInterval saveHealth, INTERVAL
 
-  # array of [ role, count || 1 ]
-  setSchema: (roles) ->
-    @killWorkers()
-
-    n = @workers.length
-    i = 0
-    for r in roles
-      role  = r[0]
-      count = r[1] || 1
-
-      for j in [1..count]
-        @fork(role)
-  
   killWorkers: ->
     w.kill() for w in @workers
     @workers.length = 0
     
-  fork: ->
-    port = @port + @workers.length + 2
-    worker = new WorkerShell(@host, port)
+  # array of [ role, partition ]
+  addWorker: (roles, port = @port + @workers.length + 2) ->
+    worker = new WorkerShell(@host, port, @file)
     @workers.push worker
+    for r in roles
+      role  = r[0]
+      partition = r[1] || 0
+      worker.assume(role)
     worker
 
   # sets cluster configuration 

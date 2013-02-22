@@ -2,6 +2,7 @@ www             = require '../transport/www'
 config          = require '../config'
 RequestProfiler = require '../optimizer/request-profiler'
 GridOptimizer   = require '../optimizer/grid-optimizer'
+request         = require 'request'
 
 INTERVAL = 2000
 
@@ -22,16 +23,36 @@ class Controller
     setInterval(update, INTERVAL)
     @update()
 
+
   localHack: ->
+    base_url = "http://#{config.host}/#{config.port}"
+    
     # assume 2 workers 1 foreman
     layout = config.layout
     workers = [ [], [] ]
+    roles = []
 
     n = 0
     for name, role of layout.roles
       for i in [ 0..(role.partitions-1) ]
         workers[n%2].push([ name, i ])
+        roles.push role.name, i
         n++
+
+    # assign
+    for w in workers
+      request
+        url: "#{base_url}/assign"
+        method: 'POST'
+        body: w
+
+    # set cluster
+    i = 0
+    cluster = ([ w.host, w.port, roles[i] ] for w, i in workers)
+    request
+      url: "#{base_url}/set-cluster"
+      method: 'POST'
+      body: cluster
 
   optimize: (grid, registration) ->
     # Get the new grid from the optimizer...
