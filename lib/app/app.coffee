@@ -4,30 +4,32 @@
 # of a layout
 class App extends EventEmitter
   constructor: ->
-    @roles = []
+    @roles = {}
     @proxy = new AppProxy(this)
 
   assume: (role) ->
-    @roles.push role
+    @roles[role.name] = role
     role._init(@proxy)
 
   unassume: (role) ->
-    @roles = @roles.filter (r) ->
-      r.name != role.name
-  
+    delete @roles[role.name]
+
   handleEmit: (packet) ->
     event = packet.event
-    for role in @roles
+    for name, role of @roles
       if handler = role.ons[event]
         packet.count++
         handler(packet, @proxy)
 
   handleAsk: (packet) ->
     event = packet.event
-    for role in @roles
+    for name, role of @roles
       if handler = role.answers[event]
         handler(packet, @proxy)
         return
+
+  migrate: (packet) ->
+    @roles[packet.role].migrate_to(packet.to, packet)
 
   _emit: (event, data) ->
     # I know, weird but we want to 

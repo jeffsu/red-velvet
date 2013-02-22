@@ -9,8 +9,8 @@ class Client
   getMetadata: ->
     base: @base
 
-  emit: (event, data, cb) ->
-    serialized = JSON.stringify(data)
+  # emit with no stringify
+  emitStraight: (event, data, cb) ->
     params =
       uri: @base + "/emit.json"
       qs:
@@ -20,16 +20,17 @@ class Client
         event: event
       method: 'PUT'
       form:
-        data: serialized
+        data: data
 
-    profile = @profiler.start_timing(event, serialized.length)
+    profile = @profiler.start_timing(event, data.length)
 
-    console.log 'emit', event
     request params, (err, r, body) =>
-      console.log 'emitted', event
       console.log 'emit: ' + event + ' finished'
       cb(err) if cb
       profile(err, body?.length)
+
+  emit: (event, data, cb) ->
+    @emitStraight event, JSON.stringify(data), cb
 
   ask: (question, data, cb) ->
     serialized = JSON.stringify(data)
@@ -45,7 +46,6 @@ class Client
 
     profile = @profiler.start_timing(question, serialized.length)
 
-    console.log 'ask', question
     request params, (err, r, body) =>
       console.log 'response', question
       cb(err, JSON.parse(body)) if cb

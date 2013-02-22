@@ -18,8 +18,10 @@ class Server extends EventEmitter
     @www.post '/migrate', (req, res) =>
       role = req.query.role
       to   = req.query.to
-      @emit 'migrate', { role: role, to: to }
 
+      @emit 'migrate', new packets.MigratePacket role, to, (err) ->
+        res.writeHead 200, {}
+        res.end()
 
     # handle emit request
     @www.all "/emit.json", (req, res) =>

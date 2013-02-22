@@ -7,8 +7,11 @@ class EmitPacket
   # TODO error handling
   ack: (err) ->
     @count--
-    if @count == 0
+    if @count <= 0
       @cb(err) if @cb
+
+class MigratePacket extends EmitPacket
+  constructor: (@role, @to, @cb) ->
 
 class AskPacket
   constructor: (@event, @data, @cb) ->
@@ -17,5 +20,6 @@ class AskPacket
     @cb(err, data) if @cb
 
 
-module.exports.AskPacket  = AskPacket
-module.exports.EmitPacket = EmitPacket
+module.exports.AskPacket     = AskPacket
+module.exports.EmitPacket    = EmitPacket
+module.exports.MigratePacket = MigratePacket

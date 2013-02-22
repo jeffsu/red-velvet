@@ -15,6 +15,7 @@
 #
 # The number of partitions can be set as one of the options.
 
+rv      = require '../'
 helpers = require '../helpers'
 Role    = require './role'
 
@@ -45,12 +46,16 @@ class Store extends Role
     @rm_handler = cb
     this
 
+  on_migrate: (cb) ->
+    @migrate_handler = cb
+    this
+
   on_migration_cost: (cb) ->
-    @migration_cost = cb
+    @migration_cost_handler = cb
     this
 
   get_migration_cost: (cb) ->
-    @migration_cost(cb)
+    @migration_cost_handler(cb)
 
   role_for_partition: (layout, index) ->
     layout.role "store:#{@name}:#{index}", (role) =>
@@ -73,5 +78,9 @@ class Store extends Role
 
   rm: (sender, id, cb) ->
     sender.emit("store-rm:#{@suffix_for(id)}", {id: id}, cb)
+
+  migrate_to: (hostport, packet) ->
+    @migrate_handler rv.getClientBroadcast(hostport), (err) ->
+      packet.ack(err)
 
 module.exports = Role
