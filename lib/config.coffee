@@ -31,6 +31,11 @@ KEYS =
   cluster:  'RV:CLUSTER'
   register: "RV:REGISTER:#{host}"
   health:   "RV:HEALTH:#{host}"
+
+PREFIXES =
+  cluster:  'RV:CLUSTER'
+  register: 'RV:REGISTER'
+  health:   'RV:HEALTH'
   
 class Config
   constructor: ->
@@ -38,7 +43,7 @@ class Config
     env = process.env
     @host     = host
     @file     = env.RV_FILE
-    @port     = env.RV_PORT
+    @port     = +env.RV_PORT
     @redis    = env.RV_REDIS || 'redis://127.0.0.1:6379'
     @env      = env.RV_ENV || 'local'
     @cpus     = os.cpus().length
@@ -76,13 +81,13 @@ class Config
         if result
           cb(null, JSON.parse result)
         else
-          cb(null, null)
+          cb(err, null)
 
   checkController: (cb) ->
     @getClient (err, client) =>
       client.eval controllerCode, 1, host, (err, result) ->
         # TODO handle error
-        cb result
+        cb err, result
 
   set: (type, cb) ->
     data = {}

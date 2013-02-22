@@ -24,7 +24,7 @@ class Worker
 
   # connect the dots
   setup: ->
-    @layout = config.layout
+    @layout = config.getLayout()
     @app    = new App()
 
     # handle receiving requests

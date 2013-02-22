@@ -11,26 +11,38 @@ class Foreman
     @file     = config.file
     @layout   = config.getLayout()
     @host     = config.host
-    @port     = config.port
-    @workers  = []
+    @port     = +config.port    # numeric coercion necessary here
+    @workers  = {}              # a hash from port -> [[role, partition], ...]
     @www      = www()
 
     @www.get '/', (req, res) =>
       res.render 'foreman', foreman: this
 
-    @www.post '/assign', (req, res) =>
-      roles = req.body
-      console.log 'assigning', roles
+    # Assign request: redo all of the nodes managed by this foreman. Causes a
+    # brief service outage and kills active send queues.
+    @www.post '/assign.json', (req, res) =>
+      {roles, port} = JSON.parse req.body.data
       @killWorkers()
-      @addWorker roles
+      @addWorker roles, port
 
       # Workers are synchronous; once instantiated, we're good
       res.writeHead 200, {}
       res.end()
 
-    @www.post '/set-cluster', (req, res) =>
-      cluster = req.body
-      console.log 'setting cluster', cluster
+    # Allocate worker request: like /assign, but does not stop any servers.
+    # This allows the controller to communicate with existing workers
+    # individually.
+    @www.post '/allocate.json', (req, res) =>
+      {roles, port} = JSON.parse req.body.data
+      console.log 'allocating ', roles
+      @addWorker roles, port
+
+      res.writeHead 200, {}
+      res.end()
+
+    # Set-cluster request: updates each worker with a new topology description?
+    @www.post '/set-cluster.json', (req, res) =>
+      cluster = JSON.parse req.body.data
       @setCluster cluster
 
       res.writeHead 200, {}
@@ -50,9 +62,10 @@ class Foreman
     
   checkController: (cb) ->
     console.log 'checking controller'
-    config.checkController (host) =>
+    config.checkController (err, host) =>
+      console.log err if err
       @spawnController() if host is config.host
-      cb()
+      cb(err)
 
   register: (cb) ->
     config.set 'register', cb
@@ -62,20 +75,23 @@ class Foreman
   persistHealth: ->
     saveHealth = =>
       hash = {}
-      hash[w.port] = JSON.stringify w.getMetadata() for w in @workers
+      hash[port] = JSON.stringify w.getMetadata() for port, w of @workers
       config.saveHealth hash
     setInterval saveHealth, INTERVAL
 
   killWorkers: ->
-    w.kill() for w in @workers
-    @workers.length = 0
-    
-  # array of [ role, partition ]
-  addWorker: (roles, port = @port + @workers.length + 2) ->
-    worker = new WorkerShell(@host, port, @file)
-    @workers.push worker
+    for port, w of @workers
+      w.kill()
+      delete @workers[port]
+
+  # roles is array of [ role, partition ]
+  addWorker: (roles, port) ->
+    if @workers[port]
+      throw new Error("foreman: cannot reassign running worker")
+
+    @workers[port] = worker = new WorkerShell(@host, port, @file)
     for r in roles
-      role  = r[0]
+      role      = r[0]
       partition = r[1] || 0
       worker.assume(role)
     worker
@@ -84,6 +100,6 @@ class Foreman
   # to all workers so they know 
   # where all the other workers are
   setCluster: (data) ->
-    w.send({ type: 'cluster', data: data }) for w in @workers
+    w.send({ type: 'cluster', data: data }) for port, w of @workers
 
 module.exports = Foreman

@@ -1,4 +1,23 @@
 extends layout
 
 block content
-  h3 Controller #{controller.host}
+  h3 Controller #{config.host}
+  h5 Status
+    if controller.awaiting_registration
+      div Awaiting registration
+    if controller.awaiting_grid
+      div Awaiting grid
+
+  h5 Registrations
+    div= JSON.stringify(controller.registrations)
+
+  h5 Grid
+    div= JSON.stringify(controller.grid)
+
+  h5 Managed machines
+    table.table.table-bordered
+      tr
+        th IP/port
+        th Roles
+        th Bottleneck factors
+        th Health

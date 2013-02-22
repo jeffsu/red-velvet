@@ -14,6 +14,8 @@ args = args.usage """
     Commands: 
       run     starts redvelvet
       layout  prints out the layout tree
+      clean   clears existing Redis data
+              (useful if your network layout has changed)
     """
 
 args = args
@@ -37,7 +39,7 @@ if !command
   args.showHelp()
   process.exit()
 
-else if !file
+else if !file && command != 'clean'
   console.warn "Missing file."
   args.showHelp()
   process.exit()
@@ -62,6 +64,12 @@ switch command
   when 'layout'
     layout = require fullpath
     layout.print()
+
+  when 'clean'
+    config.getClient (err, client) ->
+      client.del 'RV:*', (err) ->
+        console.log 'failed to delete existing data', err if err
+        process.exit()
 
   else
     args.showHelp()
