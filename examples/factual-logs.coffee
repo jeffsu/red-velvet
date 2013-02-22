@@ -25,14 +25,14 @@ each_line LOG, (data) ->
   console.log data
 ###
 
-rv     = require '../lib'
-layout = new rv.Layout()
+{Layout} = require '../lib'
+layout   = new Layout()
   .role 'log-producer', (role) ->
     role.init (app) ->
-      line = ->
-        each_line LOG, (data) =>
-          console.log 'emit: line'
-          app.emit 'line', data
+      each_line LOG, (data) =>
+        console.log 'emit: line'
+        app.emit 'line', data
+
       ask = ->
         console.log 'asking average duration'
         apikey = null
