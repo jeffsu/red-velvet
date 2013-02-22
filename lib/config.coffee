@@ -35,12 +35,14 @@ KEYS =
 class Config
   constructor: ->
     @host     = host
+    @redis    = 'redis://127.0.0.1:6379'
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
 
   set: (args) ->
     for k, v in args
       this[k] = v
+
 
   getClient: (cb) ->
     if @clientReady
@@ -49,6 +51,7 @@ class Config
     u = url.parse @redis
     @client = redis.createClient(u.port, u.hostname)
     @client.on 'ready', =>
+      console.log 'redis ready'
       @clientReady = true
       cb(null, @client)
 
