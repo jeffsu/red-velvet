@@ -25,8 +25,8 @@ each_line LOG, (data) ->
   console.log data
 ###
 
-rv   = require '../lib'
-new rv.Layout()
+rv     = require '../lib'
+layout = new rv.Layout()
   .role 'log-producer', (role) ->
     role.init (app) ->
       line = ->
@@ -35,8 +35,10 @@ new rv.Layout()
           app.emit 'line', data
       ask = ->
         console.log 'asking average duration'
-        app.ask 'avg-duration', (err, answer) ->
+        apikey = null
+        app.ask 'avg-duration', apikey, (err, answer) ->
           console.log answer
+
       setInterval ask, 3000
 
   .role 'log-reader', (role) ->
@@ -66,5 +68,7 @@ new rv.Layout()
 
     role.answer 'avg-duration', (packet, app) ->
       console.log 'got question'
-      avg = packet.data
-      pakcet.answer null, (counts == 0) ? 0 : durations/counts
+      apikey = packet.data # TODO
+      pakcet.answer null, counts ? 0 : durations/counts
+
+module.exports = layout
