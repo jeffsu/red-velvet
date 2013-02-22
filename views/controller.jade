@@ -15,31 +15,30 @@ block content
         tr
           td OK
 
-  div= JSON.stringify(hosts)
   h5 Machines
-    table.table.table-bordered
-      tr
-        th IP/port
-        th CPUs
-        th Total memory
-      each ports,host in hosts
-        each hash,port in ports
-          if hash.type == 'foreman'
-            tr
-              td= host + ":" + port
-              td= hash.hardware.cpus
-              td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
+  table.table.table-bordered
+    tr
+      th IP/port
+      th CPUs
+      th Total memory
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'foreman'
+          tr
+            td= host + ":" + port
+            td= hash.hardware.cpus
+            td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
 
 
   h5 Workers
-    table.table.table-bordered
-      tr
-        th IP/port
-        th Roles
-        th Bottleneck factors
-        th Health
-      each ports,host in hosts
-        each hash,port in ports
-          if hash.type == 'workers'
-            tr
-              td= host + ":" + port
+  table.table.table-bordered
+    tr
+      th IP/port
+      th Roles
+      th Bottleneck factors
+      th Health
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'workers'
+          tr
+            td= host + ":" + port

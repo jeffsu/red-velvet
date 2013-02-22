@@ -19,8 +19,8 @@ module.exports = () ->
    res.writeHead 200, {}
    res.end()
 
- app.get '/grid', (req, res) ->
-   res.render 'grid', { grid: config.grid }
+  app.get '/slides', (req, res) ->
+   res.render 'slides'
  
  app.get '/layout', (req, res) ->
    layout = require(config.file)

@@ -13,6 +13,16 @@ class Controller
     @www.get '/', (req, res) =>
       res.render('controller', controller: this, config: config, hosts: @grid.hosts)
 
+    @www.get '/workers/:host/:port', (req, res) =>
+      port = req.params.port
+      host = req.params.host
+      res.render('worker-edit', worker: @grid.hosts[host][port])
+
+    @www.post '/workers/:host/:port', (req, res) =>
+      # TODO
+      res.end()
+
+
     @www.listen(config.port + 1)
 
     @profiler            = new RequestProfiler()
