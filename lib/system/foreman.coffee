@@ -100,7 +100,7 @@ class Foreman
     for r in roles
       role      = r[0]
       partition = r[1] || 0
-      worker.assume(role)
+      worker.assume(role, partition)
     worker
 
   # sets cluster configuration 

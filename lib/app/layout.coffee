@@ -6,7 +6,6 @@ App   = require './app'
 class Layout
   constructor: ->
     @roles  = {}
-    @stores = {}
 
   role: (name, options, cb) ->
     if ! cb
@@ -14,11 +13,11 @@ class Layout
       options = {}
 
     throw new Error("Role: '#{name}' already exists") if name in @roles
-
-    role = @roles[name] = new Role(name, options)
-    cb(role)
-
+    @roles[name] = new Role(name, options, cb)
     return this
+
+  getRole: (name, part=0) ->
+    return
 
   print: ->
     out = [ 'ROLES:' ]
@@ -53,12 +52,12 @@ class Layout
 
   getRolesFromEvent: (event) ->
     ret = []
-    for name, role of @roles
-      ret.push role if role.ons[event]
+    for name, role of @collections
+      ret.push role if role.canEmit(event)
     ret
 
   getRoleFromQuestion: (question) ->
     for name, role of @roles
-      return role if role.answers[question]
+      return role if role.canAnswer(question)
     
 module.exports = Layout

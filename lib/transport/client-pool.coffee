@@ -11,7 +11,9 @@ class ClientPool
     return (c.getMetadata() for c in  @clients)
 
   profile_data: ->
-    return (c.profile_data() for c in @clients)
+    result = {}
+    result["#{c.host}:#{c.port}"] = c.profile_data() for c in @clients
+    result
 
   # [ 
   #   {host: host, port: port, roles: [ [ role, part ], [ role1 ] ] }
@@ -32,7 +34,7 @@ class ClientPool
       parts = @balancers[role] ||= []
       (parts[part] ||= new Balancer()).push(client)
 
-  chooseBalancer: (role, data) ->
+  choose: (role, data) ->
     part = role.getPartition(data)
     @balancers[role.name][part].choose()
 
@@ -41,13 +43,13 @@ class ClientPool
     onFin = (err) ->
       if --n == 0
         cb(err) if cb
-      
+    
     for role in roles
-      balancer = @chooseBalancer(role, data)
+      balancer = @choose(role, data)
       balancer.emit(event, data, onFin)
   
   ask: (question, data, role, cb) ->
-    balancer = @chooseBalancer(role, data)
+    balancer = @choose(role, data)
     balancer.ask(question, data, cb)
     
 

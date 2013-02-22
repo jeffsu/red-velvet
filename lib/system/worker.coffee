@@ -17,10 +17,10 @@ class Worker
     @port   = @env.RV_PORT
     @setup()
 
-  assume: (roleName) ->
-    config.worker_log "#{@host}:#{@port} is assuming #{roleName}"
+  assume: (roleName, part=0) ->
+    config.worker_log "#{host}:#{port} is assuming #{roleName} #{part}"
     if role = @layout.getRole roleName
-      @app.assume role
+      @app.assume role, part
 
   # connect the dots
   setup: ->
@@ -57,7 +57,7 @@ class Worker
 
     process.on 'message', (m) =>
       if m.type == 'assume'
-        @assume(m.role)
+        @assume(m.role, m.parttition)
 
       if m.type == 'cluster'
         @clientPool.setCluster(m.data)

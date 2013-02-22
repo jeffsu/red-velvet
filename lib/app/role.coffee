@@ -1,15 +1,25 @@
 # node inside of topology
 class Role
-  constructor: (@name, @options) ->
+  constructor: (@name, @options, @cb) ->
     @ons     = {}
     @answers = {}
+    @cb(this)
 
     @partitions = @options.partitions || 1
     @hash       = @options.hash       || -> 0
+    @assumed = false
 
   getPartition: (data) ->
     @hash(data)
 
+  assume: (app) ->
+    @_init(app) if @_init && @assumed == false
+    @assumed = true
+
+   
+  load: ->
+    @cb(this) if @cb
+    
   init: (cb) ->
     @_init = cb
 

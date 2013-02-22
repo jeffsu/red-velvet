@@ -1,17 +1,15 @@
 # Statistical aggregators collect quantitative samples and record properties
 # about the resulting distributions.
 
-class StatisticalAggregator
-  constructor: ->
-    @quantized_log_buckets ||= []
-    @total                 ||= 0.0
-    @n                     ||= 0
+LOG_2 = Math.log 2
 
-  push: (time) ->
-    time ||= 0
+class StatisticalAggregator
+  constructor: (@n = 0, @total = 0.0, @quantized_log_buckets = []) ->
+
+  push: (time = 0) ->
     @total += time
     @n++
-    quantized_log = Math.round Math.log(1 + Math.abs time)
+    quantized_log = Math.round(Math.log(1 + Math.abs time) / LOG_2)
     until @quantized_log_buckets.length > quantized_log
       @quantized_log_buckets.push 0
     @quantized_log_buckets[quantized_log]++
@@ -21,16 +19,16 @@ class StatisticalAggregator
   impurity:              -> @sum(x * x for x in @normalized())
   normalized: (base = 0) -> ((x + base) / total for x in @quantized_log_buckets)
 
-  plus: (that) ->
-    result       = new StatisticalAggregator()
-    result.total = @total + that.total
-    result.n     = @n     + that.n
+  shifted_by: (powers) ->
+    new StatisticalAggregator(@n, @total, @quantized_log_buckets.slice(powers))
 
-    result.quantized_log_buckets =
+  plus: (that) ->
+    new StatisticalAggregator(
+      @n     + that.n,
+      @total + that.total,
       ((@quantized_log_buckets[i]     || 0) +
        (that.quantized_log_buckets[i] || 0) for i in [0..Math.max(
-         @quantized_log_buckets.length, that.quantized_log_buckets.length)])
-    result
+         @quantized_log_buckets.length, that.quantized_log_buckets.length)]))
 
   sum: (xs) ->
     total = 0
@@ -44,10 +42,6 @@ class StatisticalAggregator
     {total: @total, n: @n, distribution: @quantized_log_buckets}
 
   @fromJSON: ({total, n, distribution}) ->
-    result = new StatisticalAggregator()
-    result.total                 = total
-    result.n                     = n
-    result.quantized_log_buckets = distribution
-    result
+    new StatisticalAggregator(n, total, distribution)
 
 module.exports = StatisticalAggregator

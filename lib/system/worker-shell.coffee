@@ -16,9 +16,9 @@ class WorkerShell extends EventEmitter
   getMetadata: =>
     @metadata || null
 
-  assume: (role) ->
+  assume: (role, part) ->
     if !@roles[role]
-      @child.send({ type: 'assume', role: role})
+      @child.send({ type: 'assume', role: role, partition: part })
       @roles[role] = true
 
   send: (data) ->

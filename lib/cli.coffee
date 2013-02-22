@@ -52,8 +52,6 @@ env.RV_REDIS = argv.redis
 env.RV_ENV   = argv.env
 
 config = require './config'
-
-console.log 'cli'
 switch command
   when 'run'
     Foreman = require '../lib/system/foreman'

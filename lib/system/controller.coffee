@@ -26,7 +26,8 @@ class Controller
     @update()
 
   # This is the entry point for grid manipulation.
-  manage: (hosts) ->
+  manage: (grid, registration) ->
+    config.controller_log @optimizer.bottlenecks(grid)
 
   update: ->
     # Synchronize the grid if we're not already doing so.
