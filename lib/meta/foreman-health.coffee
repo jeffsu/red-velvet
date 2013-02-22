@@ -23,6 +23,7 @@ class ForemanHealth
       @health =
         free_memory:  @free_memory.toJSON()
         load_average: @load_average.toJSON()
+        cpus:         os.cpus()
       setTimeout(run, INTERVAL)
 
     run = =>
