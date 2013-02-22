@@ -13,9 +13,18 @@ class Role
     @hash(data)
 
   assume: (app) ->
-    @_init(app) if @_init && @assumed == false
-    @assumed = true
+    return if @assumed
 
+    @assumed = true
+    console.log "Assuming #{@name}"
+    init = => @_init(app)
+    setTimeout init, 3000
+
+  canEmit: (event) ->
+    return @ons[event]
+
+  canAnswer: (q) ->
+    return @answers[q]
    
   load: ->
     @cb(this) if @cb

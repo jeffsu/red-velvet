@@ -116,7 +116,6 @@ class Grid extends EventEmitter
   update: (cb) ->
     config.getClient (err, client) =>
       client.eval update_grid, 1, @version, (err, results) =>
-        console.log "update grid", err, results
         if results && results.length
           @play(results, cb)
         else
