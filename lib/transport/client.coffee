@@ -7,7 +7,7 @@ class Client
     @profiler = new RequestProfiler()
 
   getMetadata: ->
-    return {}
+    base: @base
 
   # emit with no stringify
   emitStraight: (event, data, cb) ->
