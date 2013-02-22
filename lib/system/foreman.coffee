@@ -24,35 +24,6 @@ class Foreman
     @www.get '/slides', (req, res) =>
       res.render 'slides'
 
-    # Assign request: redo all of the nodes managed by this foreman. Causes a
-    # brief service outage and kills active send queues.
-    @www.post '/assign.json', (req, res) =>
-      {roles, port} = JSON.parse req.body.data
-      @killWorkers()
-      @addWorker roles, port
-
-      # Workers are synchronous; once instantiated, we're good
-      res.writeHead 200, {}
-      res.end()
-
-    # Allocate worker request: like /assign, but does not stop any servers.
-    # This allows the controller to communicate with existing workers
-    # individually.
-    @www.post '/allocate.json', (req, res) =>
-      {roles, port} = JSON.parse req.body.data
-      @addWorker roles, port
-
-      res.writeHead 200, {}
-      res.end()
-
-    # Set-cluster request: updates each worker with a new topology description?
-    @www.post '/set-cluster.json', (req, res) =>
-      cluster = JSON.parse req.body.data
-      @setCluster cluster
-
-      res.writeHead 200, {}
-      res.end()
-
     @www.listen @port
     console.log "listening at port #{@port}"
 
@@ -66,6 +37,11 @@ class Foreman
           if cell.status == 'spinup'
             @grid.write @host, port, 'status', 'inactive'
             @addWorker(cell.roles, port)
+
+      cluster = []
+      for p of @grid.hosts[@host]
+        cluster.push {host: @host, port: p, roles: @grid.hosts[@host][p].roles}
+      @setCluster(cluster)
 
   run: ->
     console.log 'bootup sequence initiated'

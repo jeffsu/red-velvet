@@ -11,7 +11,6 @@ class Controller
     console.log 'starting controller'
     @www = www()
     @www.get '/', (req, res) =>
-      console.log @grid.hosts
       res.render 'controller',
         controller: this
         config: config
