@@ -32,13 +32,13 @@ layout   = new Layout()
       each_line LOG, (data) =>
         app.emit 'line', data
 
-      ask = ->
-        console.log 'asking average duration'
+      test_ask = ->
+        console.log 'test asking average duration'
         apikey = 'every'
         app.ask 'avg-duration', apikey, (err, answer) ->
-          console.log answer
+          console.log 'got answer:', answer
 
-      setInterval ask, 3000
+      setInterval test_ask, 3000
 
   .role 'log-reader', (role) ->
     role.on 'line', (packet, app) ->
@@ -51,7 +51,7 @@ layout   = new Layout()
         action:    row[6]
         query:     row[9]
         code:      row[12]
-        duration:  row[14]
+        duration:  row[15]
       app.emit 'log-data', data
       packet.ack()
   
@@ -65,18 +65,20 @@ layout   = new Layout()
       counts.every++
 
       durations[data.key] ?= 0
-      durations[data.key] += data.duration
-      durations.every += data.duration
+      durations[data.key] += parseInt(data.duration)
+      durations.every += parseInt(data.duration)
 
       packet.ack()
 
     role.answer 'avg-duration', (packet, app) ->
-      console.log 'got question'
       apikey = packet.data
 
       count = counts[apikey]
       duration = durations[apikey]
 
-      packet.answer null, count ? 0 : duration/count
+      answer = if count > 0 then duration/count else 0
+      console.log count, duration
+      console.log "question: #{apikey}, answer: #{answer}"
+      packet.answer null, answer.toString()
 
 module.exports = layout

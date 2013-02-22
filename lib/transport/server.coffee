@@ -14,11 +14,15 @@ class Server extends EventEmitter
   profile_data: ->
     @profiler.toJSON()
 
-  run: (port) ->
+  run: (port, app) ->
     return if @www
 
     @www = require('./www')()
 
+    @www.get '/ask/:role/:question', (req, res) =>
+      app.ask req.params.role, req.params.question, (err, answer) ->
+        res.write answer
+        res.end()
     @www.post '/migrate', (req, res) =>
       role = req.query.role
       to   = req.query.to

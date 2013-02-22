@@ -57,7 +57,7 @@ class Worker
       role = askLookup[q] ||= @layout.getRoleFromQuestion(q)
       @clientPool.ask(q, data, role, cb)
 
-    @server.run @port
+    @server.run @port, @app
 
     process.on 'message', (m) =>
       if m.type == 'assume'
