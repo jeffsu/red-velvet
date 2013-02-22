@@ -30,7 +30,6 @@ layout   = new Layout()
   .role 'log-producer', (role) ->
     role.init (app) ->
       each_line LOG, (data) =>
-        console.log 'emit: line'
         app.emit 'line', data
 
       ask = ->
@@ -69,7 +68,6 @@ layout   = new Layout()
       durations[data.key] += data.duration
       durations.every += data.duration
 
-      console.log 'key counts', counts.length
       packet.ack()
 
     role.answer 'avg-duration', (packet, app) ->
@@ -79,6 +77,6 @@ layout   = new Layout()
       count = counts[apikey]
       duration = durations[apikey]
 
-      pakcet.answer null, count ? 0 : duration/count
+      packet.answer null, count ? 0 : duration/count
 
 module.exports = layout

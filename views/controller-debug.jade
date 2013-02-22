@@ -20,6 +20,7 @@ block content
     tr
       th IP/port
       th CPUs
+      th Free memory
       th Total memory
     each ports,host in hosts
       each hash,port in ports
@@ -27,8 +28,8 @@ block content
           tr
             td= host + ":" + port
             td= hash.hardware.cpus
+            td= Math.round(hash.health.free_memory.total / hash.health.free_memory.n / 1048576) + "MB"
             td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
-
 
   h5 Workers
   table.table.table-bordered
