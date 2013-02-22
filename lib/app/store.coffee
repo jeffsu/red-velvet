@@ -34,6 +34,9 @@ class Store extends Role
   suffix_for: (id) ->
     "#{@name}:#{@options.hash(id) % @options.partitions}"
 
+  key_for: (id) ->
+    "store:#{@suffix_for id}"
+
   on_get: (cb) ->
     @get_handler = cb
     this

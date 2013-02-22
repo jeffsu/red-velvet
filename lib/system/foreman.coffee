@@ -65,7 +65,8 @@ class Foreman
 
   persistHealth: ->
     saveHealth = =>
-      (grid ?= {})[w.port] = JSON.stringify w.getMetadata() for w in @workers
+      grid = {}
+      grid[w.port] = JSON.stringify w.getMetadata() for w in @workers
       config.saveHealth grid
     setInterval saveHealth, INTERVAL
 
