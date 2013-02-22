@@ -53,9 +53,13 @@ class Foreman
 
   start: ->
     layout = config.layout
-    roleNames = layout.getRoleNames()
-    schema = ([r, 1] for r in roleNames)
-    @setSchema(schema)
+    roles = []
+    for name, role of layout.roles
+      for i in [ 1..role.partitions ]
+        roles.push role.name, i
+
+    console.log(roles)
+    @setSchema(roles)
 
     @persistHealth()
 

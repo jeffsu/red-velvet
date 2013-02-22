@@ -22,6 +22,17 @@ class Controller
     setInterval(update, INTERVAL)
     @update()
 
+  localHack: ->
+    # assume 2 workers 1 foreman
+    layout = config.layout
+    workers = [ [], [] ]
+
+    n = 0
+    for name, role of layout.roles
+      for i in [ 0..(role.partitions-1) ]
+        workers[n%2].push([ name, i ])
+        n++
+
   optimize: (grid, registration) ->
     # Get the new grid from the optimizer...
     new_grid = @optimizer.optimize(grid, registration)
