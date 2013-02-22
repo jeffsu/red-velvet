@@ -83,24 +83,6 @@ class Config
         else
           cb(err, null)
 
-  getAll: (type, cb) ->
-    @getClient (err, client) =>
-      @print_if err
-      client.keys "#{PREFIXES[type]}:*", (err, keys) =>
-        @print_if err
-        result   = {}
-        enqueued = 0
-        for k in keys
-          enqueued++
-          ((k) =>               # closure is required here
-            client.get k, (err, v) =>
-              @print_if err
-              if v && v != 'undefined'
-                result[k.substr PREFIXES[type].length + 1] = JSON.parse v
-              cb(null, result) unless --enqueued
-          )(k)
-        cb(null, result) unless enqueued
-
   checkController: (cb) ->
     @getClient (err, client) =>
       client.eval controllerCode, 1, host, (err, result) ->
