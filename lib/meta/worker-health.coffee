@@ -10,7 +10,7 @@ class WorkerHealth
     @startClientChecking()
 
   sendMetadata: ->
-    config.worker_log 'sending metadata'
+    console.log 'sending metadata'
     config.grid.write @worker.host, @worker.port, 'health',
                       JSON.stringify @getMetadata()
 
@@ -32,7 +32,7 @@ class WorkerHealth
       @process_rss.push(process.memoryUsage().rss)
       @sendMetadata()
 
-    config.worker_log 'starting health loop'
+    console.log 'starting health loop'
     setInterval(check, INTERVAL)
 
 module.exports = WorkerHealth
