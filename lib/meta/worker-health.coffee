@@ -10,7 +10,6 @@ class WorkerHealth
     @startClientChecking()
 
   sendMetadata: ->
-    console.log 'sending metadata'
     config.grid.write @worker.host, @worker.port, 'health', @getMetadata()
 
   getMetadata: ->

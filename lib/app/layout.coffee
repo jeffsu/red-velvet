@@ -49,12 +49,12 @@ class Layout
 
   getRolesFromEvent: (event) ->
     ret = []
-    for name, role of @collections
+    for name, role of @roles
       ret.push role if role.canEmit(event)
     ret
 
   getRoleFromQuestion: (question) ->
-    for name, role of @collections
+    for name, role of @roles
       return role if role.canAnswer(question)
     
 module.exports = Layout

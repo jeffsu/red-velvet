@@ -47,6 +47,7 @@ class RoleCollection
     @getRole(part, true).assume(@app)
 
   copy: ->
+    console.log 'COPY'
     new Role(@first.name, @first.options, @first.cb)
 
 module.exports = RoleCollection

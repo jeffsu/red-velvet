@@ -47,8 +47,10 @@ class Worker
     @workerHealth = new WorkerHealth(@, @clientPool, @server)
 
     emitLookup = {}
+
     @app.on 'emit', (event, data, cb) =>
       roles = emitLookup[event] ||= @layout.getRolesFromEvent(event)
+      console.log "--- emit #{event} #{data} #{roles} ---"
       @clientPool.emit(event, data, roles, cb)
 
     askLookup = {}

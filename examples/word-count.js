@@ -5,14 +5,14 @@ layout
   .role('line-producer', function (role) {
     role.init(function (app) {
       function line() {
-        console.log('emit: line')
+        console.log('-- producing line');
         app.emit('line', 'hello world');
       }
 
       setInterval(line, 100);
 
       function ask() {
-        console.log('asking word-count');
+        console.log('-- asking word-count');
         app.ask('word-count', 'hello', function (err, answer) {
           console.log('answer: ' + answer);
         });
@@ -23,6 +23,7 @@ layout
 
   .role('line-reader', function (role) {
     role.on('line', function (packet, app) { 
+      console.log("-- got line")
       app.emit('words', packet.data.split(/\s+/));
       packet.ack();
     });
@@ -33,7 +34,7 @@ layout
 
     role.on('words', function (packet, app) {
       var words = packet.data;
-      console.log("got words", words);
+      console.log("-- got words", words);
       for (var i=0; i<words.length; i++) {
         var word = words[i];
         counts[word] = (counts[word] || 0) + 1;
