@@ -32,15 +32,14 @@ class Foreman
       # Match up workers with our workers. If we see a new one in the
       # "spinup" state, spin it up.
       our_ports = @grid.hosts[@host]
+      cluster   = []
       for port, cell of our_ports
         unless @workers[port]
           if cell.status == 'spinup'
             @grid.write @host, port, 'status', 'inactive'
+            cluster.push {host: @host, port: port, roles: cell.roles}
             @addWorker(cell.roles, port)
 
-      cluster = []
-      for p of @grid.hosts[@host]
-        cluster.push {host: @host, port: p, roles: @grid.hosts[@host][p].roles}
       @setCluster(cluster)
 
   run: ->
