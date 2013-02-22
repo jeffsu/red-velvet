@@ -119,7 +119,6 @@ class Config
 
   # health: {port: {...}}}
   saveHealth: (hash) ->
-    cmds = (['set', "#{KEYS.health}:#{port}", json] for port,json of hash)
-    @client.multi(cmds).exec()
+    grid.write host, port, 'health', json for port, json of hash
 
 module.exports = new Config()

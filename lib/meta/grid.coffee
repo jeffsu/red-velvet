@@ -1,5 +1,3 @@
-config = require '../config'
-
 # takes host, port, key, value
 update_cell = """
   local namespace = "RV:GRID"
@@ -38,12 +36,12 @@ update_grid = """
 {EventEmitter} = require 'events'
 
 class Grid extends EventEmitter
-  constructor: ->
-    @hosts = {}
+  constructor: (@config)->
+    @hosts   = {}
     @version = 0
 
   actAsForeman: ->
-    config.getNewClient (err, client) =>
+    @config.getNewClient (err, client) =>
       client.subscribe "RV:GRID"
       client.on 'message', (ch, json) =>
         @play([ json ])
@@ -52,14 +50,23 @@ class Grid extends EventEmitter
     repeat = => @update()
     setTimeout repeat, 10000
 
+  writeHash: (host, port, hash, cb) ->
+    count = 0
+    console.log hash
+    for k,v of hash
+      count++
+      @write host, port, k, v, =>
+        count--
+    cb() if (cb && count == 0)
+
   write: (host, port, key, value, cb) ->
-    config.getClient (err, client) ->
-      client.eval update_cell, 4, host, port, key, value, (err, result) ->
-        config.debug_log "written", err
+    @config.getClient (err, client) =>
+      client.eval update_cell, 4, host, port, key, value, (err, result) =>
+        @config.debug_log "written", err
         cb() if cb
 
   sync: (cb) ->
-    config.getClient (err, client) =>
+    @config.getClient (err, client) =>
       client.keys "RV:GRID*", (err, keys) =>
         multi = client.multi()
         for key in keys
@@ -77,12 +84,19 @@ class Grid extends EventEmitter
     for key, i in keys
       h = hashes[i]
       if m = key.match(/RV:GRID:(.+):(.+)/)
-        (@hosts[m[1]] ||= {})[m[2]] = h
+        nh = {}
+        for k,v of h
+          try
+            nv = JSON.parse(v)
+          catch e
+            nv = v
+          nh[k] = nv
+        (@hosts[m[1]] ||= {})[m[2]] = nh
 
   update: (cb) ->
-    config.getClient (err, client) =>
+    @config.getClient (err, client) =>
       client.eval update_grid, 1, @version, (err, results) =>
-        config.debug_log "update grid", err, results
+        @config.debug_log "update grid", err, results
         if results && results.length
           @play(results, cb)
         else

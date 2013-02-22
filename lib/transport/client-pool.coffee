@@ -11,7 +11,9 @@ class ClientPool
     return (c.getMetadata() for c in  @clients)
 
   profile_data: ->
-    return (c.profile_data() for c in @clients)
+    result = {}
+    result["#{c.host}:#{c.port}"] = c.profile_data() for c in @clients
+    result
 
   # [ 
   #   {host: host, port: port, roles: [ [ role, part ], [ role1 ] ] }

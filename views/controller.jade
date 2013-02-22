@@ -15,19 +15,21 @@ block content
         tr
           td OK
 
+  div= JSON.stringify(hosts)
   h5 Registrations
     table.table.table-bordered
       tr
         th IP/port
         th CPUs
         th Total memory
-      each r in controller.registration
-        tr
-          td= r.host + ":" + r.port
-          td= r.cpus
-          td= Math.round(r.totalmem / (1024 * 1024)) + "MB"
+      each ports,host in hosts
+        each hash,port in ports
+          if hash.type == 'foreman'
+            tr
+              td= host + ":" + port
+              td= hash.hardware.cpus
+              td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
 
-  div= JSON.stringify(controller.grid)
 
   h5 Managed workers
     table.table.table-bordered
@@ -36,6 +38,8 @@ block content
         th Roles
         th Bottleneck factors
         th Health
-      each m, hostport in controller.grid
-        tr
-          td= hostport
+      each ports,host in hosts
+        each hash,port in ports
+          if hash.type == 'workers'
+            tr
+              td= host + ":" + port

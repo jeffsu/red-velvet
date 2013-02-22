@@ -11,7 +11,7 @@ class Controller
     console.log 'starting controller'
     @www = www()
     @www.get '/', (req, res) =>
-      res.render('controller', controller: this, config: config)
+      res.render('controller', controller: this, config: config, hosts: @grid.hosts)
 
     @www.listen(config.port + 1)
 
@@ -19,7 +19,6 @@ class Controller
     @optimizer              = new GridOptimizer()
     @previous_machine_count = 0
 
-    @registration = []
     @grid         = config.grid
 
     update = => @update()
@@ -28,6 +27,7 @@ class Controller
 
   # This is the entry point for grid manipulation.
   manage: (grid, registration) ->
+    config.controller_log @optimizer.bottlenecks(grid)
 
   update: ->
     # Synchronize the grid if we're not already doing so.
