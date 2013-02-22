@@ -45,18 +45,24 @@ class RequestProfiler
       rate_aggregator.push transfer_rate
       error_aggregator.push error_rate
 
+  map_values: (obj, f) ->
+    h = {}
+    h[k] = f(v) for k, v of obj
+    return h
+
   toJSON: ->
-    per_type_timings: @per_type_timings.toJSON()
-    per_type_rates:   @per_type_rates.toJSON()
-    error_rates:      @error_rates.toJSON()
-    active_requests:  @active.toJSON()
+    per_type_timings: @map_values(@per_type_timings, (v) -> v.toJSON())
+    per_type_rates:   @map_values(@per_type_rates,   (v) -> v.toJSON())
+    error_rates:      @map_values(@error_rates,      (v) -> v.toJSON())
+    active_requests:  @map_values(@active,           (v) -> v.toJSON())
 
   fromJSON: (json) ->
     result = new RequestProfiler()
-    @per_type_timings = StatisticalAggregator.fromJSON json.per_type_timings
-    @per_type_rates   = StatisticalAggregator.fromJSON json.per_type_rates
-    @error_rates      = StatisticalAggregator.fromJSON json.error_rates
-    @active           = StatisticalAggregator.fromJSON json.active_requests
+    fromjson = (v) -> StatisticalAggregator.fromJSON v
+    @per_type_timings = @map_values json.per_type_timings, fromjson
+    @per_type_rates   = @map_values json.per_type_rates,   fromjson
+    @error_rates      = @map_values json.error_rates,      fromjson
+    @active           = @map_values json.active_requests,  fromjson
     result
 
 module.exports = RequestProfiler

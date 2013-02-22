@@ -10,6 +10,9 @@ class ClientPool
   getMetadata: ->
     return (c.getMetadata() for c in  @clients)
 
+  profile_data: ->
+    return (c.profile_data() for c in @clients)
+
   # [ [ host, port, [ ..roles.. ] ] ]
   setCluster: (data) ->
     for row in data

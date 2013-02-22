@@ -10,6 +10,9 @@ class Server extends EventEmitter
   getMetadata: ->
     return {}
 
+  profile_data: ->
+    @profiler.toJSON()
+
   run: (port) ->
     return if @www
 

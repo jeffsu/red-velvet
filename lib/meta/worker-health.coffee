@@ -18,8 +18,8 @@ class WorkerHealth
     server:              @server.getMetadata()
     process_rss_memory:  @process_rss.toJSON()
     event_latency:       @delay_samples.toJSON()
-
-
+    server_profile:      @server.profile_data()
+    client_profiles:     @clientPool.profile_data()
 
   startClientChecking: ->
     start = Date.now()

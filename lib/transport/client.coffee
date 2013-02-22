@@ -9,6 +9,9 @@ class Client
   getMetadata: ->
     base: @base
 
+  profile_data: ->
+    @profiler.toJSON()
+
   # emit with no stringify
   emitStraight: (event, data, cb) ->
     params =
