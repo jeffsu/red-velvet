@@ -125,8 +125,9 @@ class Grid extends EventEmitter
     cb(null) if cb
 
     if changedHosts[config.host]
-      @emit "updated-host"
+      @emit "updated-self"
 
+    @write config.host, config.port, 'version', @version
     @emit "updated"
 
 module.exports = Grid
