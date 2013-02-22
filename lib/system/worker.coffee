@@ -18,6 +18,7 @@ class Worker
     @setup()
 
   assume: (roleName, part=0) ->
+    console.log "worker #{@host}:#{@port} is assuming role #{roleName}"
     if role = @layout.getRole roleName
       @app.assume role, part
 
@@ -40,7 +41,7 @@ class Worker
 
     # handle making requests
     @clientPool   = new ClientPool()
-    @workerHealth = new WorkerHealth(@clientPool, @server)
+    @workerHealth = new WorkerHealth(@, @clientPool, @server)
 
     emitLookup = {}
     @app.on 'emit', (event, data, cb) =>
@@ -56,7 +57,7 @@ class Worker
 
     process.on 'message', (m) =>
       if m.type == 'assume'
-        @assume(m.role, m.parttition)
+        @assume(m.role, m.partition)
 
       if m.type == 'cluster'
         @clientPool.setCluster(m.data)
