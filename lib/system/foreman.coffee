@@ -60,14 +60,14 @@ class Foreman
     @persistHealth()
 
     i = 0
-    cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in @workers)
+    cluster = ([ w.host, w.port, [ [roleNames[i++] ]] ] for w in @workers)
     @setCluster cluster
 
   persistHealth: ->
     saveHealth = =>
-      grid = {}
-      grid[w.port] = JSON.stringify w.getMetadata() for w in @workers
-      config.saveHealth grid
+      hash = {}
+      hash[w.port] = JSON.stringify w.getMetadata() for w in @workers
+      config.saveHealth hash
     setInterval saveHealth, INTERVAL
 
   # array of [ role, count || 1 ]
