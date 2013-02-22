@@ -13,17 +13,7 @@ each_line = (log, cb)->
       until (idx = str.indexOf('\n')) == -1
         line = str.slice(0, idx)
         str  = str.slice(idx+1)
-        row  = line.split('\t')
-        data =
-          timestamp: row[1]
-          ip:        row[2]
-          key:       row[3]
-          view:      row[4]
-          action:    row[6]
-          query:     row[9]
-          code:      row[12]
-          duration:  row[14]
-        cb(data)
+        cb(line)
 
     res.on 'end', () ->
       console.log 'done'
@@ -37,9 +27,44 @@ each_line LOG, (data) ->
 
 rv   = require '../lib'
 new rv.Layout()
-  .role 'log-reader', (role) ->
+  .role 'log-producer', (role) ->
     role.init (app) ->
-      line: (packet, app) ->
+      line = ->
         each_line LOG, (data) =>
+          console.log 'emit: line'
           app.emit 'line', data
-          packet.ack()
+      ask = ->
+        console.log 'asking average duration'
+        app.ask 'avg-duration', (err, answer) ->
+          console.log answer
+      setInterval ask, 3000
+
+  .role 'log-reader', (role) ->
+    role.on 'line', (packet, app) ->
+      row  = packet.data.split('\t')
+      data =
+        timestamp: row[1]
+        ip:        row[2]
+        key:       row[3]
+        view:      row[4]
+        action:    row[6]
+        query:     row[9]
+        code:      row[12]
+        duration:  row[14]
+      app.emit 'log-data', data
+      packet.ack()
+  
+  .role 'avg-duration', (role) ->
+    counts = 0
+    durations = 0
+    role.on 'log-data', (packet, app) ->
+      data = packet.data
+      counts++
+      duration += data.duration
+      console.log 'counts', counts
+      packet.ack()
+
+    role.answer 'avg-duration', (packet, app) ->
+      console.log 'got question'
+      avg = packet.data
+      pakcet.answer null, (counts == 0) ? 0 : durations/counts
