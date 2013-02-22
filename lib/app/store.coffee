@@ -58,26 +58,26 @@ class Store extends Role
     @migration_cost_handler(cb)
 
   role_for_partition: (layout, index) ->
-    layout.role "store:#{@name}:#{index}", (role) =>
+    layout.role "rv:store:#{@name}:#{index}", (role) =>
       # GET requests
-      role.answer "store-get:#{@name}:#{index}", (id, cb) =>
+      role.answer "rv:store-get:#{@name}:#{index}", (id, cb) =>
         @get_handler(id, cb)
 
       # SET/RM requests
-      role.on "store-set:#{@name}:#{index}", (id, value, cb) =>
+      role.on "rv:store-set:#{@name}:#{index}", (id, value, cb) =>
         @set_handler(id, value, cb)
 
-      role.on "store-rm:#{@name}:#{index}", (id, cb) =>
+      role.on "rv:store-rm:#{@name}:#{index}", (id, cb) =>
         @rm_handler(id, cb)
 
   get: (sender, id, cb) ->
-    sender.ask("store-get:#{@suffix_for(id)}", {id: id}, cb)
+    sender.ask("rv:store-get:#{@suffix_for(id)}", {id: id}, cb)
 
   set: (sender, id, value, cb) ->
-    sender.emit("store-set:#{@suffix_for(id)}", {id: id, value: value}, cb)
+    sender.emit("rv:store-set:#{@suffix_for(id)}", {id: id, value: value}, cb)
 
   rm: (sender, id, cb) ->
-    sender.emit("store-rm:#{@suffix_for(id)}", {id: id}, cb)
+    sender.emit("rv:store-rm:#{@suffix_for(id)}", {id: id}, cb)
 
   migrate_to: (hostports, packet) ->
     @migrate_handler new Broadcaster(hostports), (err) ->

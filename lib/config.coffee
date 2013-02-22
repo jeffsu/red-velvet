@@ -54,7 +54,7 @@ class Config
 
   get: (type, cb) ->
     @getClient (err, client) =>
-      client.get KEYS.type, (err, result) ->
+      client.get KEYS[type], (err, result) ->
         if result
           cb(null, JSON.parse result)
         else
@@ -72,7 +72,7 @@ class Config
 
     @getClient (err, client) =>
       str = JSON.stringify data
-      client.set KEYS.type, str, (err) ->
+      client.set KEYS[type], str, (err) ->
         cb(err) if cb
 
   saveGrid: (port, key, data) ->

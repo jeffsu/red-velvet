@@ -16,6 +16,17 @@ class Foreman
     @www.get '/', (req, res) =>
       res.render 'foreman', foreman: this
 
+    @www.get '/allocate.json', (req, res) =>
+      # Body of the request is structured like this:
+      # [{port: X, role: Y}, ...]
+      machines = JSON.parse req.body.data
+      for {port, role} in machines
+        @fork(role, port)
+
+      # Workers are synchronous; once instantiated, we're good
+      res.writeHead 200, {}
+      res.end()
+
     @www.listen @port
     console.log "forman is listening at port #{@port}"
 
@@ -66,8 +77,7 @@ class Foreman
     w.kill() for w in @workers
     @workers.length = 0
     
-  fork: (role) ->
-    port = @port + @workers.length + 2
+  fork: (role, port = @port + @workers.length + 2) ->
     worker = new WorkerShell(@host, port, @file)
 
     @workers.push worker
