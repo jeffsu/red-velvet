@@ -43,3 +43,21 @@ block content
             td= host + ":" + port
             td= hash.roles.map(function (x) {return x[0]}).join(', ')
             td= hash.status
+
+  h5 Optimization
+  table.table.table-bordered
+    tr
+      th IP/port
+      th Bottleneck factors
+      th Network analysis
+      th Health
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'worker'
+          tr
+            td= host + ":" + port
+            td= JSON.stringify(bottlenecks[host + ":" + port])
+            td= JSON.stringify(network_analyses[host + ":" + port])
+            td= JSON.stringify(hash.health)
+
+  div= JSON.stringify(hosts)
