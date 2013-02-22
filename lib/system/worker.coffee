@@ -26,7 +26,6 @@ class Worker
     @layout = require @env.RV_FILE
     @app    = new App()
 
-
     # handle receiving requests
     @server = new transport.Server()
 

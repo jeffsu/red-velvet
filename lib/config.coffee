@@ -34,18 +34,18 @@ KEYS =
 class Config
   constructor: ->
     @host     = host
-    @port     = argv.port || env.RV_PORT || 8000
-    @file     = cwd + '/' + argv.file
-    @env      = 'local'
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
-    @redisUri = argv.redis || 'redis://127.0.0.1:6379'
+
+  set: (args) ->
+    for k, v in args
+      this[k] = v
 
   getClient: (cb) ->
     if @clientReady
       return cb(null, @client)
 
-    u = url.parse @redisUri
+    u = url.parse @redis
     @client = redis.createClient(u.port, u.hostname)
     @client.on 'ready', =>
       @clientReady = true

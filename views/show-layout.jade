@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h3 Roles
+  table.table.table-bordered
+    tr
+      th Name
+      th Event Listeners
+      th Answers
+    each role, name in layout.roles
+      tr
+        td= name
+        td
+          each o, event in role.ons
+            = event
+        td
+          each a, question in role.answers
+            = question

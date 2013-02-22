@@ -42,6 +42,7 @@ layout
     });
 
     role.answer('word-count', function (packet, app) {
+      console.log('got question');
       var word = packet.data;
       packet.answer(null, counts[word] || 0);
     });

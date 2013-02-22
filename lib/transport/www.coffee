@@ -1,4 +1,5 @@
 express = require 'express'
+config  = require '../config'
 http    = require 'http'
 path    = require 'path'
 ROOT    = path.join(__dirname, '..', '..')
@@ -17,3 +18,7 @@ module.exports = () ->
  app.get '/ping', (req, res) ->
    res.writeHead 200, {}
    res.end()
+ 
+ app.get '/layout', (req, res) ->
+   layout = require(config.file)
+   res.render "show-layout", { layout: layout }

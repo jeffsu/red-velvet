@@ -1,12 +1,12 @@
 optimist = require 'optimist'
   
 args = optimist
-args.default
-    port:  8000
-    redis: 'redis://127.0.0.1:6379'
-    env:   'local'
+args = args.default
+  port:  8000
+  redis: 'redis://127.0.0.1:6379'
+  env:   'local'
 
-args.usage """
+args = args.usage """
     Red Velvet: 0.0.0 (Jeff Su, Spencer Tipping, Forrest Cao)
     rv [command] [options] [layout file]
 
@@ -15,7 +15,7 @@ args.usage """
       layout  prints out the layout tree
     """
 
-args
+args = args
   .alias('r', 'redis')
   .describe('redis', 'redis uri')
 
@@ -41,10 +41,16 @@ else if !file
   args.showHelp()
   process.exit()
 
-Foreman = require('../lib/system/foreman')
-fullpath = "#{process.cwd()}/#{file}"
+fullpath     = "#{process.cwd()}/#{file}"
+config       = require './config'
+config.file  = fullpath
+config.port  = argv.port
+config.redis = argv.redis
+config.env   = argv.env
+
 switch command
   when 'run'
+    Foreman = require('../lib/system/foreman')
     forman = new Foreman fullpath
     forman.run()
 
