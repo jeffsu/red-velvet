@@ -54,7 +54,7 @@ class Server extends EventEmitter
 
       @emit 'ask', packet
 
-    config.worker_log "listening on port #{port}"
+    console.log "listening on port #{port}"
     @www.listen port
 
 module.exports = Server

@@ -12,7 +12,7 @@ getHost = ->
     for details in iface
       if details.family == 'IPv4'
         addresses.push details.address
-  return addresses.filter((a) -> a != '127.0.0.1')[0]
+  return addresses.filter((a) -> a != '127.0.0.1' && a != 'localhost')[0]
 
 host = getHost()
 
