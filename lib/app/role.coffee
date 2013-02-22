@@ -1,8 +1,14 @@
 # node inside of topology
 class Role
-  constructor: (@name) ->
+  constructor: (@name, @options) ->
     @ons     = {}
     @answers = {}
+
+    @partition = @options.partitions || 1
+    @hash      = @options.hash       || -> 0
+
+  getPartition: (data) ->
+    @hash(data)
 
   init: (cb) ->
     @_init = cb
@@ -25,15 +31,5 @@ class Role
 
     cb.opts = opts
     @answers[name] = cb
-
-  migrate_to: (hostport, packet) ->
-    # Default: do nothing; ack immediately
-    packet.ack()
-
-  get_migration_cost: (cb) ->
-    # Assume zero migration cost unless otherwise specified. Migration cost is
-    # measured as a linear factor of bytes. This function will be called fairly
-    # frequently.
-    cb(0)
 
 module.exports = Role

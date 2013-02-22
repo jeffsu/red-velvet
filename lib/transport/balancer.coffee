@@ -1,4 +1,5 @@
 Client = require './client'
+
 class Balancer
   constructor: ->
     @clients = []
@@ -6,7 +7,14 @@ class Balancer
   push: (client) ->
     @clients.push(client)
  
-  choose: ->
+  choose:  ->
     @clients[Math.floor(Math.random()*@clients.length)]
+
+  emit: (event, data, cb)
+    @choose().emit(event, data, cb)
+
+  ask: (question, data, cb)
+    @choose().ask(question, data, cb)
+    
   
 module.exports = Balancer

@@ -7,7 +7,7 @@ config = require '../config'
 INTERVAL = 1000
 class Foreman
 
-  constructor: (@host) ->
+  constructor: ->
     @file     = config.file
     @host     = config.host
     @port     = config.port
@@ -52,7 +52,7 @@ class Foreman
     config.set 'register', cb
 
   start: ->
-    layout = require @file
+    layout = config.layout
     roleNames = layout.getRoleNames()
     schema = ([r, 1] for r in roleNames)
     @setSchema(schema)
