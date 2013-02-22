@@ -75,8 +75,9 @@ class Config
       client.set KEYS[type], str, (err) ->
         cb(err) if cb
 
-  saveGrid: (port, key, data) ->
-    workerKey = "#{KEYS.grid}:#{port}"
-    @client.hset workerKey, key, JSON.stringify(data)
+  # grid: {port: {migration_state: '...', roles: [...], health: {...}}}
+  saveGrid: (grid) ->
+    cmds = (['hmset', "#{KEYS.grid}:#{port}", hash] for port,hash of grid)
+    @client.multi cmds
 
 module.exports = new Config()

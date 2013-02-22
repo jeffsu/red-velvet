@@ -4,6 +4,7 @@ WorkerShell = require './worker-shell'
 www = require '../transport/www'
 config = require '../config'
 
+INTERVAL = 1000
 class Foreman
 
   constructor: (@host) ->
@@ -56,9 +57,22 @@ class Foreman
     schema = ([r, 1] for r in roleNames)
     @setSchema(schema)
 
+    @persistGrid()
+
     i = 0
     cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in @workers)
     @setCluster cluster
+
+  persistGrid: ->
+    saveGrid = =>
+      grid = {}
+      for w in @workers
+        grid[w.port] =
+          roles: "[#{w.role}]"
+          migration_state: "null"
+          health: JSON.stringify w.getMetadata()
+      config.saveGrid grid
+    setInterval saveGrid, INTERVAL
 
   # array of [ role, count || 1 ]
   setSchema: (roles) ->
@@ -79,15 +93,8 @@ class Foreman
     
   fork: (role, port = @port + @workers.length + 2) ->
     worker = new WorkerShell(@host, port, @file)
-
     @workers.push worker
     worker.assume(role)
-
-    config.saveGrid(port, 'roles', [role])
-    config.saveGrid(port, 'migration_state', null)
-    worker.on 'health', (data) =>
-      config.saveGrid(port, 'health', data)
-
     worker
 
   # sets cluster configuration 
