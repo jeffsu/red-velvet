@@ -18,6 +18,9 @@ class Foreman
     @www.get '/', (req, res) =>
       res.render 'foreman', foreman: this
 
+    @www.get '/slides', (req, res) =>
+      res.render 'slides'
+
     # Assign request: redo all of the nodes managed by this foreman. Causes a
     # brief service outage and kills active send queues.
     @www.post '/assign.json', (req, res) =>
