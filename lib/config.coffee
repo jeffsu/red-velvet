@@ -32,6 +32,7 @@ KEYS =
   health:   "RV:HEALTH:#{host}"
   grid:     "RV:GRID:#{host}"
   
+Grid = require './meta/grid'
 class Config
   constructor: ->
     @host     = host
