@@ -20,6 +20,7 @@ class Foreman
 
     @www.post '/assign', (req, res) =>
       roles = req.body
+      console.log 'assigning', roles
       @killWorkers()
       @addWorker roles
 
@@ -29,6 +30,7 @@ class Foreman
 
     @www.post '/set-cluster', (req, res) =>
       cluster = req.body
+      console.log 'setting cluster', cluster
       @setCluster cluster
 
       res.writeHead 200, {}

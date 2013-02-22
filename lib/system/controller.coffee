@@ -25,10 +25,10 @@ class Controller
 
 
   localHack: ->
-    base_url = "http://#{config.host}/#{config.port}"
+    base_url = "http://#{config.host}:#{config.port}"
     
     # assume 2 workers 1 foreman
-    layout = config.layout
+    layout = config.getLayout()
     workers = [ [], [] ]
     roles = []
 
@@ -41,18 +41,14 @@ class Controller
 
     # assign
     for w in workers
-      request
-        url: "#{base_url}/assign"
-        method: 'POST'
-        body: w
+      console.log 'sending assign', w
+      request.post "#{base_url}/assign", w
 
     # set cluster
     i = 0
     cluster = ([ w.host, w.port, roles[i] ] for w, i in workers)
-    request
-      url: "#{base_url}/set-cluster"
-      method: 'POST'
-      body: cluster
+    console.log 'sending cluster', cluster
+    request.post "#{base_url}/set-cluster", cluster
 
   optimize: (grid, registration) ->
     # Get the new grid from the optimizer...
