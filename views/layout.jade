@@ -9,7 +9,7 @@ html
 
     :stylus
       body
-        margin-top: 0px
+        margin-top: 80px
 
   body
     :stylus
@@ -19,6 +19,10 @@ html
       h3, h5
         color #730606
 
+      .table
+        border-color red
+        td, th
+          border-color red
       .slide
         p
           font-size 2em
@@ -32,9 +36,11 @@ html
             padding 5px
 
     
-    div(style="background-color: #730606; padding: 10px; margin-bottom: 10px")
+    .navbar.navbar-invers.navbar-fixed-top(style="background-color: #730606;")
       .container
-        img(src="/logo.png")
+        a.brand(href="/")
+          img(src="/logo.png")
+        block header
 
     .container
       block content

@@ -54,6 +54,13 @@ env.RV_ENV   = argv.env
 config = require './config'
 config.start()
 
+console.log `"\033[1;31m"` + """
+  ____  ____  ____    _  _  ____  __    _  _  ____  ____ 
+ (  _ \\(  __)(    \\  / )( \\(  __)(  )  / )( \\(  __)(_  _)
+  )   / ) _)  ) D (  \\ \\/ / ) _) / (_/\\\\ \\/ / ) _)   )(  
+ (__\\_)(____)(____/   \\__/ (____)\\____/ \\__/ (____) (__) 
+""" + `"\033[0;0m"`
+
 switch command
   when 'run'
     Foreman = require '../lib/system/foreman'

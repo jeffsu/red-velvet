@@ -1,4 +1,4 @@
-extends layout
+extends controller-layout
 
 block content
   h3 Controller #{config.host}
@@ -28,7 +28,7 @@ block content
           tr
             td= host + ":" + port
             td= hash.hardware.cpus
-            td= Math.round(hash.health.free_memory / 1048576) + "MB"
+            td= Math.round(hash.health.free_memory.total / hash.health.free_memory.n / 1048576) + "MB"
             td= Math.round(hash.hardware.totalmem / (1024 * 1024)) + "MB"
 
   h5 Workers

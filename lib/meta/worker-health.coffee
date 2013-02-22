@@ -24,7 +24,7 @@ class WorkerHealth
     start = Date.now()
     check = =>
       now = Date.now()
-      @delay_samples.push(now - start)
+      @delay_samples.push(now - start - INTERVAL)
       start = now
 
       @process_rss.push(process.memoryUsage().rss)
