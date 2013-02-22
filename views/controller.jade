@@ -3,16 +3,19 @@ extends layout
 block content
   h3 Controller #{config.host}
   h5 Status
-    if controller.awaiting_registration
-      div Awaiting registration
-    if controller.awaiting_grid
-      div Awaiting grid
-
-  h5 Registrations
-    div= JSON.stringify(controller.registrations)
-
-  h5 Grid
-    div= JSON.stringify(controller.grid)
+    table.table.table-bordered
+      tr
+        th Registration delay (seconds):
+        td= !!controller.awaiting_registration * (Date.now() - controller.awaiting_registration) / 1000
+      tr
+        th Registrations:
+        td= JSON.stringify(controller.registration)
+      tr
+        th Grid delay (seconds):
+        td= !!controller.awaiting_grid * (Date.now() - controller.awaiting_grid) / 1000
+      tr
+        th Grid:
+        td= JSON.stringify(controller.grid)
 
   h5 Managed machines
     table.table.table-bordered

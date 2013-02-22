@@ -34,7 +34,6 @@ class Foreman
     # individually.
     @www.post '/allocate.json', (req, res) =>
       {roles, port} = JSON.parse req.body.data
-      console.log 'allocating ', roles
       @addWorker roles, port
 
       res.writeHead 200, {}
@@ -49,21 +48,20 @@ class Foreman
       res.end()
 
     @www.listen @port
-    console.log "forman is listening at port #{@port}"
+    config.foreman_log "listening at port #{@port}"
 
   run: ->
-    console.log 'bootup sequence initiated'
+    config.foreman_log 'bootup sequence initiated'
     @checkController =>
       @register =>
       
   spawnController: ->
-    console.log 'spawning controller'
+    config.foreman_log 'spawning controller'
     fork "#{__dirname}/controller-runner"
     
   checkController: (cb) ->
-    console.log 'checking controller'
     config.checkController (err, host) =>
-      console.log err if err
+      config.foreman_log err if err
       @spawnController() if host is config.host
       cb(err)
 

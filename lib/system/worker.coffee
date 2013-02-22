@@ -18,7 +18,7 @@ class Worker
     @setup()
 
   assume: (roleName) ->
-    console.log('assuming:', roleName)
+    config.worker_log 'assuming ', roleName
     if role = @layout.getRole roleName
       @app.assume role
 
@@ -46,7 +46,7 @@ class Worker
     emitLookup = {}
     @app.on 'emit', (event, data, cb) =>
       roles = emitLookup[event] ||= @layout.getRolesFromEvent(event)
-      @clientPool.emit(emit, data, roles, cb)
+      @clientPool.emit(event, data, roles, cb)
 
     askLookup = {}
     @app.on 'ask', (q, data, cb) =>

@@ -55,7 +55,7 @@ class Grid extends EventEmitter
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) ->
       client.eval update_cell, 4, host, port, key, value, (err, result) ->
-        console.log "written", err
+        config.debug_log "written", err
         cb() if cb
 
   sync: (cb) ->
@@ -82,7 +82,7 @@ class Grid extends EventEmitter
   update: (cb) ->
     config.getClient (err, client) =>
       client.eval update_grid, 1, @version, (err, results) =>
-        console.log "update grid", err, results
+        config.debug_log "update grid", err, results
         if results && results.length
           @play(results, cb)
         else

@@ -39,7 +39,6 @@ PREFIXES =
   
 class Config
   constructor: ->
-    console.log 'asdfsdfasfdsf'
     env = process.env
     @host     = host
     @file     = env.RV_FILE
@@ -49,7 +48,6 @@ class Config
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
     @grid     = new Grid()
-    console.log this
 
   getLayout: ->
     @layout ||= require @file
@@ -61,7 +59,7 @@ class Config
   getNewClient: (cb) ->
     client = redis.createClient(u.port, u.hostname)
     client.on 'ready', =>
-      console.log 'redis ready'
+      @config_log 'redis ready'
       cb(null, client)
 
   getClient: (cb) ->
@@ -71,17 +69,34 @@ class Config
     u = url.parse @redis
     @client = redis.createClient(u.port, u.hostname)
     @client.on 'ready', =>
-      console.log 'redis ready'
+      @config_log 'redis ready'
       @clientReady = true
       cb(null, @client)
 
   get: (type, cb) ->
     @getClient (err, client) =>
-      client.get KEYS[type], (err, result) ->
+      @print_if err
+      client.get KEYS[type], (err, result) =>
+        @print_if err
         if result
           cb(null, JSON.parse result)
         else
           cb(err, null)
+
+  getAll: (type, cb) ->
+    @getClient (err, client) =>
+      @print_if err
+      client.keys "#{PREFIXES[type]}:*", (err, keys) =>
+        @print_if err
+        result   = []
+        enqueued = 0
+        for k in keys
+          enqueued++
+          client.get k, (err, v) =>
+            @print_if err
+            result.push JSON.parse v
+            cb(null, result) unless --enqueued
+        cb(null, result) unless enqueued
 
   checkController: (cb) ->
     @getClient (err, client) =>
@@ -97,6 +112,20 @@ class Config
       str = JSON.stringify data
       client.set KEYS[type], str, (err) ->
         cb(err) if cb
+
+  log_multi: (prefix, args) ->
+    sliced   = Array.prototype.slice.call(args)
+    new_args = [`"\033[1;31mrv\033[0;0m"`, prefix].concat(sliced)
+    console.log.apply(console, new_args)
+
+  foreman_log:    -> @log_multi `"\033[1;32mforeman:\033[0;0m"`, arguments
+  worker_log:     -> @log_multi `"\033[1;33mworker: \033[0;0m"`, arguments
+  controller_log: -> @log_multi `"\033[1;34mcontrol:\033[0;0m"`, arguments
+  debug_log:      -> @log_multi `"\033[1;35mdebug:  \033[0;0m"`, arguments
+  config_log:     -> @log_multi `"\033[1;36mconfig: \033[0;0m"`, arguments
+  error_log:      -> @log_multi `"\033[1;31merror:  \033[0;0m"`, arguments
+
+  print_if: (err) -> @error_log err if err
 
   # health: {port: {...}}}
   saveHealth: (hash) ->

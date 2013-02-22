@@ -1,5 +1,6 @@
 {EventEmitter} = require 'events'
 packets = require './packets'
+config  = require '../config'
 
 RequestProfiler = require '../optimizer/request-profiler'
 
@@ -53,7 +54,7 @@ class Server extends EventEmitter
 
       @emit 'ask', packet
 
-    console.log("Listening on port: " + port)
+    config.worker_log "listening on port #{port}"
     @www.listen port
 
 module.exports = Server

@@ -57,7 +57,6 @@ console.log 'cli'
 switch command
   when 'run'
     Foreman = require '../lib/system/foreman'
-    console.log 'asdfadfdsfs hsdfadf'
     forman = new Foreman
     forman.run()
 
@@ -67,9 +66,17 @@ switch command
 
   when 'clean'
     config.getClient (err, client) ->
-      client.del 'RV:*', (err) ->
-        console.log 'failed to delete existing data', err if err
-        process.exit()
+      client.keys 'RV:*', (err, keys) ->
+        enqueued = 0
+        for k in keys
+          enqueued++
+          # Rebind to refer to the correct key within the closure
+          ((k) ->
+            client.del k, (err) ->
+              enqueued--
+              console.log "failed to delete existing key #{k}", err if err
+              process.exit() if enqueued == 0
+          )(k)
 
   else
     args.showHelp()

@@ -28,7 +28,6 @@ class Client
     profile = @profiler.start_timing(event, data.length)
 
     request params, (err, r, body) =>
-      console.log 'emit: ' + event + ' finished'
       cb(err) if cb
       profile(err, body?.length)
 
@@ -50,7 +49,6 @@ class Client
     profile = @profiler.start_timing(question, serialized.length)
 
     request params, (err, r, body) =>
-      console.log 'response', question
       cb(err, JSON.parse(body)) if cb
       profile(err, body.length)
 
