@@ -145,7 +145,7 @@ class Grid extends EventEmitter
     for json in results.reverse()
       hash = JSON.parse json
       changedHosts[hash.host] = true
-      ((@hosts[hash.host] ||= {})[hash.port] ||= {})[hash.key] = hash.value
+      ((@hosts[hash.host] ||= {})[hash.port] ||= {})[hash.key] = JSON.parse(hash.value)
     cb(null) if cb
 
     if changedHosts[config.host]
