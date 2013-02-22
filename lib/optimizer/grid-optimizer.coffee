@@ -24,12 +24,22 @@
 #
 # It isn't quite as easy as just moving some arbitrary roles around. Ideally we
 # determine the resource requirements of each role individually and optimize
-# specifically to alleviate particular bottlenecks.
+# specifically to alleviate particular bottlenecks. We also consider the
+# migration cost of each one if the nodes provide this information. (TODO)
+
+FREE_MEMORY_TARGET = 0.8        # 80%
 
 class GridOptimizer
   constructor: ->
 
-  optimize: (grid, registration) ->
-    grid
+  # Produce a hash like this:
+  # {"host:port": {network:   0.4,
+  #                disk:      0.7,
+  #                memory:    0.5,
+  #                eventloop: 0.1},
+  #  ...}
+  #
+  # Each bottleneck metric is in the range [0, 1], with 1 being the slowest.
+  bottlenecks: (grid) ->
 
 module.exports = GridOptimizer

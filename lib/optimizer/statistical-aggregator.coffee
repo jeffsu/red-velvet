@@ -15,9 +15,27 @@ class StatisticalAggregator
     until @quantized_log_buckets.length > quantized_log
       @quantized_log_buckets.push 0
     @quantized_log_buckets[quantized_log]++
+    @
 
-  average: ->
-    @total / @n || 0.0
+  average:               -> @total / @n || 0.0
+  impurity:              -> @sum(x * x for x in @normalized())
+  normalized: (base = 0) -> ((x + base) / total for x in @quantized_log_buckets)
+
+  plus: (that) ->
+    result       = new StatisticalAggregator()
+    result.total = @total + that.total
+    result.n     = @n     + that.n
+
+    result.quantized_log_buckets =
+      ((@quantized_log_buckets[i]     || 0) +
+       (that.quantized_log_buckets[i] || 0) for i in [0..Math.max(
+         @quantized_log_buckets.length, that.quantized_log_buckets.length)])
+    result
+
+  sum: (xs) ->
+    total = 0
+    total += x for x in xs
+    total
 
   toString: ->
     "mean: #{@average()}; n: #{@n}; distribution: #{@quantized_log_buckets}"
