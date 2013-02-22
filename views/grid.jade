@@ -1,6 +1,7 @@
 extend layout
 block content
-  - table = grid.toTable()
+  = JSON.stringify(grid)
+  - table = [[]]
   table
     each row in table
       tr

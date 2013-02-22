@@ -46,8 +46,13 @@ class Grid extends EventEmitter
   constructor: ->
     @hosts   = {}
     @version = 0
+    @run()
 
   actAsForeman: ->
+    # no op
+
+  run: ->
+    @sync()
     config.getNewClient (err, client) =>
       client.subscribe "RV:GRID"
       client.on 'message', (ch, json) =>

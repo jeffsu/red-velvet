@@ -62,6 +62,7 @@ class Config
       this[k] = v
 
   getNewClient: (cb) ->
+    u = url.parse @redis
     client = redis.createClient(u.port, u.hostname)
     client.on 'ready', =>
       @config_log 'redis ready'
