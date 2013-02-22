@@ -18,8 +18,8 @@ class Worker
     @setup()
 
   assume: (roleName, part=0) ->
-    console.log "worker #{@host}:#{@port} is assuming role #{roleName}"
     if role = @layout.getRole roleName
+      console.log "worker #{@host}:#{@port} is assuming role #{roleName}[#{part}]"
       @app.assume role, part
 
   # connect the dots

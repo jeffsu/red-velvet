@@ -99,6 +99,7 @@ class Grid extends EventEmitter
         multi.exec (err, hashes) =>
           @version = hashes.pop()
           @set_grid(keys, hashes)
+          @emit "updated"
 
           return cb(null) if (cb)
         
