@@ -92,11 +92,13 @@ class Config
         enqueued = 0
         for k in keys
           enqueued++
-          client.get k, (err, v) =>
-            @print_if err
-            if v && v != 'undefined'
-              result[k.substr PREFIXES[type].length + 1] = JSON.parse v
-            cb(null, result) unless --enqueued
+          ((k) =>               # closure is required here
+            client.get k, (err, v) =>
+              @print_if err
+              if v && v != 'undefined'
+                result[k.substr PREFIXES[type].length + 1] = JSON.parse v
+              cb(null, result) unless --enqueued
+          )(k)
         cb(null, result) unless enqueued
 
   checkController: (cb) ->

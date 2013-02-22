@@ -29,7 +29,7 @@ block content
 
   div= JSON.stringify(controller.grid)
 
-  h5 Managed machines
+  h5 Managed workers
     table.table.table-bordered
       tr
         th IP/port
@@ -37,4 +37,5 @@ block content
         th Bottleneck factors
         th Health
       each m, hostport in controller.grid
-        div= hostport
+        tr
+          td= hostport

@@ -17,8 +17,6 @@ class Controller
 
     @profiler               = new RequestProfiler()
     @optimizer              = new GridOptimizer()
-    @awaiting_grid          = false
-    @awaiting_registration  = false
     @previous_machine_count = 0
 
     @registration = []
@@ -97,29 +95,15 @@ class Controller
     config.controller_log "applying changes (TODO)"
 
   update: ->
-    if @awaiting_grid || @awaiting_registration
-      config.controller_log 'not updating; awaiting more data'
-      return
+    # Synchronize the grid if we're not already doing so.
+    return if @awaiting_grid
+    @awaiting_grid = Date.now()
 
-    @awaiting_grid         = Date.now()
-    @awaiting_registration = Date.now()
-
-    config.controller_log @profiler.toJSON()
-
-    register_profile = @profiler.start_timing('register', 0)
-    config.getAll 'register', (err, registration) =>
+    profile = @profiler.start_timing 'grid-sync', 0
+    @grid.sync (err) =>
       config.print_if err
-      register_profile(null, 0)
-      @awaiting_registration = false
-      @registration          = registration
-      @manage @grid, @registration unless @awaiting_grid
-
-    register_grid = @profiler.start_timing('grid', 0)
-    config.getAll 'health', (err, grid) =>
-      config.print_if err
-      register_grid(null, 0)
+      profile err, 0
       @awaiting_grid = false
-      @grid          = grid
-      @manage @grid, @registration unless @awaiting_registration
+      @manage grid
 
 module.exports = Controller
