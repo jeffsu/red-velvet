@@ -4,6 +4,7 @@ cwd   = process.cwd()
 os    = require 'os'
 redis = require 'redis'
 url   = require 'url'
+Grid  = require './meta/grid'
 
 getHost = ->
   ifaces = os.networkInterfaces()
@@ -30,7 +31,6 @@ KEYS =
   cluster:  'RV:CLUSTER'
   register: "RV:REGISTER:#{host}"
   health:   "RV:HEALTH:#{host}"
-  grid:     "RV:GRID:#{host}"
   
 class Config
   constructor: ->
@@ -84,9 +84,9 @@ class Config
       client.set KEYS[type], str, (err) ->
         cb(err) if cb
 
-  # grid: {port: {migration_state: '...', roles: [...], health: {...}}}
-  saveGrid: (grid) ->
-    cmds = (['hmset', "#{KEYS.grid}:#{port}", hash] for port,hash of grid)
+  # health: {port: {...}}}
+  saveHealth: (health) ->
+    cmds = (['hmset', "#{KEYS.health}:#{port}", hash] for port,hash of health)
     @client.multi cmds
 
 module.exports = new Config()

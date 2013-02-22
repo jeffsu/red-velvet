@@ -57,22 +57,17 @@ class Foreman
     schema = ([r, 1] for r in roleNames)
     @setSchema(schema)
 
-    @persistGrid()
+    @persistHealth()
 
     i = 0
     cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in @workers)
     @setCluster cluster
 
-  persistGrid: ->
-    saveGrid = =>
-      grid = {}
-      for w in @workers
-        grid[w.port] =
-          roles: "[#{w.role}]"
-          migration_state: "null"
-          health: JSON.stringify w.getMetadata()
-      config.saveGrid grid
-    setInterval saveGrid, INTERVAL
+  persistHealth: ->
+    saveHealth = =>
+      (grid ?= {})[w.port] = JSON.stringify w.getMetadata() for w in @workers
+      config.saveHealth grid
+    setInterval saveHealth, INTERVAL
 
   # array of [ role, count || 1 ]
   setSchema: (roles) ->
