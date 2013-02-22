@@ -36,6 +36,8 @@ block content
       th IP/port
       th Roles
       th Status
+      th Event loop latency
+      th RSS
     each ports,host in hosts
       each hash,port in ports
         if hash.type == 'worker'
@@ -43,3 +45,5 @@ block content
             td= host + ":" + port
             td= hash.roles.map(function (x) {return x[0]}).join(', ')
             td= hash.status
+            td= Math.round(hash.health.event_latency.total / hash.health.event_latency.n) + "ms"
+            td= Math.round((hash.health.process_rss_memory.total / hash.health.process_rss_memory.n) / 1048576) + "MB"
