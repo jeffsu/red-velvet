@@ -66,12 +66,18 @@ class Grid extends EventEmitter
         count--
     cb() if (cb && count == 0)
 
-  activate: (host, port) ->
-    @write host, port, 'status', 'active'
+  activate: (host, port, cb)   -> @write host, port, 'status', 'active', cb
+  deactivate: (host, port, cb) -> @write host, port, 'status', 'obsolete', cb
+  destroy:  (host, port, cb) -> @write host, port, 'nuke', 'true', cb
 
-  deactivate: (host, port) ->
-    @write host, port, 'status', 'obsolete'
+  allocate: (host, port, roles, cb) ->
+    @write host, port, 'status', 'inactive', =>
+      @write host, port, 'roles', JSON.stringify(roles), cb
 
+  port_for: (host) ->
+    port = config.port + 2
+    port++ while @hosts[host] && @hosts[host][port]
+    port
 
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) =>
@@ -143,5 +149,26 @@ class Grid extends EventEmitter
 
     @write config.host, config.port, 'version', @version
     @emit "updated"
+
+  all_cells: (filter) ->
+    result = []
+    for host, row of @hosts
+      for port, cell of row
+        cell.host ||= host
+        cell.port ||= port
+        result.push cell if !filter || filter(cell, host, port)
+    result
+
+  foreman_for: (host) ->
+    machine_row = @hosts[host]
+    for port, cell of machine_row
+      return cell if cell.type == 'foreman'
+
+  workers_for: (host) ->
+    machine_row = @hosts[host]
+    (cell for port, cell of machine_row when cell.type == 'worker')
+
+  all_foremen: -> @all_cells((cell) -> cell.type == 'foreman')
+  all_workers: -> @all_cells((cell) -> cell.type == 'worker')
 
 module.exports = Grid

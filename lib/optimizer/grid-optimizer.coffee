@@ -55,7 +55,7 @@ class GridOptimizer
   # General analyses used to make routing decisions
   network_analyses: (grid) ->
     result = {}
-    for c in @all_cells(grid, (cell) -> !!cell.health)
+    for c in grid.all_cells((cell) -> !!cell.health)
       result["#{c.host}:#{c.port}"] = @network_analysis(grid, c)
     result
 
@@ -67,7 +67,7 @@ class GridOptimizer
 
     # Now gather up client-side statistics.
     all_clients_total = new StatisticalAggregator()
-    clients = @all_cells (cell, host, port) ->
+    clients = grid.all_cells (cell, host, port) ->
       !(host == server.host && port == server.port)
 
     client_distribution = new StatisticalAggregator()
@@ -108,7 +108,7 @@ class GridOptimizer
 
   # Specific bottleneck measurements
   memory_badness: (grid, host) ->
-    foreman    = @foreman_for(grid, host)
+    foreman    = grid.foreman_for(host)
     free_ratio = foreman.health.free_memory / foreman.hardware.total_memory
     return 0 if free_ratio > FREE_MEMORY_TARGET
     return 1.0 - (free_ratio / FREE_MEMORY_TARGET)
@@ -127,26 +127,5 @@ class GridOptimizer
     return (loss - NETWORK_LOSS_TARGET) / (1.0 - NETWORK_LOSS_TARGET)
 
   # Cell retrieval functions
-  all_cells: (grid, filter) ->
-    result = []
-    for host, row of grid
-      for port, cell of row
-        result.push cell if !filter || filter cell, host, port
-    result
-
-  foreman_for: (grid, host) ->
-    machine_row = grid.hosts[host]
-    for port, cell of machine_row
-      return cell if cell.type == 'foreman'
-
-  workers_for: (grid, host) ->
-    machine_row = grid.hosts[host]
-    (cell for port, cell of machine_row when cell.type == 'worker')
-
-  all_foremen: (grid) ->
-    (cell for cell in @all_cells(grid) when cell.type == 'foreman')
-
-  all_workers: (grid) ->
-    (cell for cell in @all_cells(grid) when cell.type == 'worker')
 
 module.exports = GridOptimizer
