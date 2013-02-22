@@ -86,7 +86,8 @@ class Grid extends EventEmitter
 
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) =>
-      client.eval update_cell, 4, host, port, key, value, (err, result) =>
+      client.eval update_cell, 4, host, port, key, JSON.stringify(value),
+                  (err, result) =>
         config.debug_log "written", err
         cb() if cb
 
@@ -111,11 +112,7 @@ class Grid extends EventEmitter
       if m = key.match(/RV:GRID:(.+):(.+)/)
         nh = {}
         for k,v of h
-          try
-            nv = JSON.parse(v)
-          catch e
-            nv = v
-          nh[k] = nv
+          nh[k] = JSON.parse v
         (@hosts[m[1]] ||= {})[m[2]] = nh
 
   update: (cb) ->

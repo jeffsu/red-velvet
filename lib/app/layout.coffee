@@ -57,7 +57,7 @@ class Layout
     ret
 
   getRoleFromQuestion: (question) ->
-    for name, role of @roles
+    for name, role of @collections
       return role if role.canAnswer(question)
     
 module.exports = Layout
