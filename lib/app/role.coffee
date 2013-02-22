@@ -4,8 +4,8 @@ class Role
     @ons     = {}
     @answers = {}
 
-    @partition = @options.partitions || 1
-    @hash      = @options.hash       || -> 0
+    @partitions = @options.partitions || 1
+    @hash       = @options.hash       || -> 0
 
   getPartition: (data) ->
     @hash(data)

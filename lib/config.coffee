@@ -34,11 +34,20 @@ KEYS =
   
 class Config
   constructor: ->
+    console.log 'asdfsdfasfdsf'
+    env = process.env
     @host     = host
-    @redis    = 'redis://127.0.0.1:6379'
+    @file     = env.RV_FILE
+    @port     = env.RV_PORT
+    @redis    = env.RV_REDIS || 'redis://127.0.0.1:6379'
+    @env      = env.RV_ENV || 'local'
     @cpus     = os.cpus().length
     @totalmem = os.totalmem()
     @grid     = new Grid()
+    console.log this
+
+  getLayout: ->
+    @layout ||= require @file
 
   set: (args) ->
     for k, v in args

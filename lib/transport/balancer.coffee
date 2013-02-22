@@ -10,10 +10,10 @@ class Balancer
   choose:  ->
     @clients[Math.floor(Math.random()*@clients.length)]
 
-  emit: (event, data, cb)
+  emit: (event, data, cb) ->
     @choose().emit(event, data, cb)
 
-  ask: (question, data, cb)
+  ask: (question, data, cb) ->
     @choose().ask(question, data, cb)
     
   

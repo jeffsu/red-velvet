@@ -1,5 +1,6 @@
 optimist = require 'optimist'
   
+console.log 'loading config'
 args = optimist
 args = args.default
   port:  8000
@@ -41,17 +42,20 @@ else if !file
   args.showHelp()
   process.exit()
 
-fullpath     = "#{process.cwd()}/#{file}"
-config       = require './config'
-config.file  = fullpath
-config.port  = argv.port
-config.redis = argv.redis
-config.env   = argv.env
-config.layout = require fullpath
+fullpath = "#{process.cwd()}/#{file}"
+env      = process.env
+env.RV_FILE  = fullpath
+env.RV_PORT  = argv.port
+env.RV_REDIS = argv.redis
+env.RV_ENV   = argv.env
 
+config = require './config'
+
+console.log 'cli'
 switch command
   when 'run'
     Foreman = require '../lib/system/foreman'
+    console.log 'asdfadfdsfs hsdfadf'
     forman = new Foreman
     forman.run()
 

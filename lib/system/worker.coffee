@@ -2,6 +2,7 @@
 
 transport = require '../transport'
 
+config       = require '../config'
 {Server}     = transport
 {Balancer}   = transport
 {ClientPool} = transport
@@ -23,7 +24,7 @@ class Worker
 
   # connect the dots
   setup: ->
-    @layout = require @env.RV_FILE
+    @layout = config.layout
     @app    = new App()
 
     # handle receiving requests

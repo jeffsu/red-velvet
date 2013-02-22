@@ -1,7 +1,7 @@
 {fork} = require 'child_process'
 
 WorkerShell = require './worker-shell'
-www = require '../transport/www'
+www    = require '../transport/www'
 config = require '../config'
 
 INTERVAL = 1000
@@ -9,6 +9,7 @@ class Foreman
 
   constructor: ->
     @file     = config.file
+    @layout   = config.getLayout()
     @host     = config.host
     @port     = config.port
     @workers  = []
@@ -22,7 +23,7 @@ class Foreman
       # [{port: X, role: Y}, ...]
       machines = JSON.parse req.body.data
       for {port, role} in machines
-        @fork(role, port)
+        @fork()
 
       # Workers are synchronous; once instantiated, we're good
       res.writeHead 200, {}
@@ -55,17 +56,21 @@ class Foreman
     layout = config.layout
     roles = []
     for name, role of layout.roles
-      for i in [ 1..role.partitions ]
+      console.log name, role.partitions
+      for i in [ 0..role.partitions-1 ]
         roles.push role.name, i
 
-    console.log(roles)
-    @setSchema(roles)
+    @fork()
+    @fork()
 
-    @persistHealth()
+    console.log(roles, '---------------')
+    #@setSchema(roles)
+
+    #@persistHealth()
 
     i = 0
-    cluster = ([ w.host, w.port, [ [roleNames[i++] ]] ] for w in @workers)
-    @setCluster cluster
+    cluster = ([ w.host, w.port, [ roles[i] ] ] for w, i in @workers)
+    @setCluster(cluster)
 
   persistHealth: ->
     saveHealth = =>
@@ -91,10 +96,10 @@ class Foreman
     w.kill() for w in @workers
     @workers.length = 0
     
-  fork: (role, port = @port + @workers.length + 2) ->
-    worker = new WorkerShell(@host, port, @file)
+  fork: ->
+    port = @port + @workers.length + 2
+    worker = new WorkerShell(@host, port)
     @workers.push worker
-    worker.assume(role)
     worker
 
   # sets cluster configuration 
