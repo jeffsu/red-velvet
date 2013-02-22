@@ -54,7 +54,7 @@ class Foreman
       res.end()
 
     @www.listen @port
-    config.foreman_log "listening at port #{@port}"
+    console.log "listening at port #{@port}"
 
     @grid = config.grid
     @grid.on 'updated', =>
@@ -68,7 +68,7 @@ class Foreman
             @addWorker(cell.roles, port)
 
   run: ->
-    config.foreman_log 'bootup sequence initiated'
+    console.log 'bootup sequence initiated'
     @checkController =>
       @register =>
         @grid.sync()
@@ -77,14 +77,14 @@ class Foreman
     child = fork "#{__dirname}/controller-runner", { env: process.env, silent: true }
 
     child.stdout.on 'data', (chunk) ->
-      config.controller_log chunk.toString().trim()
+      console.log chunk.toString().trim()
 
     child.stderr.on 'data', (chunk) ->
-      config.controller_log chunk.toString().trim()
+      console.log chunk.toString().trim()
     
   checkController: (cb) ->
     config.checkController (err, host) =>
-      config.foreman_log err if err
+      console.log err if err
       @spawnController() if host is config.host
       cb(err)
 
