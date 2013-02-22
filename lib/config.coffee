@@ -87,6 +87,6 @@ class Config
   # health: {port: {...}}}
   saveHealth: (hash) ->
     cmds = (['set', "#{KEYS.health}:#{port}", json] for port,json of hash)
-    @client.multi cmds
+    @client.multi(cmds).exec()
 
 module.exports = new Config()
