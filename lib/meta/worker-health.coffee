@@ -12,7 +12,7 @@ class WorkerHealth
     process.send
       type: 'health'
       data: @getMetadata()
-    
+
   getMetadata: ->
     clients:             @clientPool.getMetadata()
     server:              @server.getMetadata()
@@ -30,7 +30,6 @@ class WorkerHealth
 
       @process_rss.push(process.memoryUsage().rss)
       @sendMetadata()
-
 
     setInterval(check, INTERVAL)
 

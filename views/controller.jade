@@ -4,18 +4,30 @@ block content
   h3 Controller #{config.host}
   h5 Status
     table.table.table-bordered
+      if controller.awaiting_registration || controller.awaiting_grid
+        tr
+          th Registration delay (seconds):
+          td= !!controller.awaiting_registration * (Date.now() - controller.awaiting_registration) / 1000
+        tr
+          th Grid delay (seconds):
+          td= !!controller.awaiting_grid * (Date.now() - controller.awaiting_grid) / 1000
+      else
+        tr
+          td OK
+
+  h5 Registrations
+    table.table.table-bordered
       tr
-        th Registration delay (seconds):
-        td= !!controller.awaiting_registration * (Date.now() - controller.awaiting_registration) / 1000
-      tr
-        th Registrations:
-        td= JSON.stringify(controller.registration)
-      tr
-        th Grid delay (seconds):
-        td= !!controller.awaiting_grid * (Date.now() - controller.awaiting_grid) / 1000
-      tr
-        th Grid:
-        td= JSON.stringify(controller.grid)
+        th IP/port
+        th CPUs
+        th Total memory
+      each r in controller.registration
+        tr
+          td= r.host + ":" + r.port
+          td= r.cpus
+          td= Math.round(r.totalmem / (1024 * 1024)) + "MB"
+
+  div= JSON.stringify(controller.grid)
 
   h5 Managed machines
     table.table.table-bordered
@@ -24,3 +36,5 @@ block content
         th Roles
         th Bottleneck factors
         th Health
+      each m, hostport in controller.grid
+        div= hostport

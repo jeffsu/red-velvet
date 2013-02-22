@@ -94,7 +94,7 @@ class Controller
     new_grid = @optimizer.optimize(grid, registration)
 
     # ... and apply the diffs to the foreman nodes.
-    config.controller_log "applying changes #{new_grid} (TODO)"
+    config.controller_log "applying changes (TODO)"
 
   update: ->
     if @awaiting_grid || @awaiting_registration
@@ -108,15 +108,15 @@ class Controller
 
     register_profile = @profiler.start_timing('register', 0)
     config.getAll 'register', (err, registration) =>
-      config.controller_log 'failed to get registration', err if err
+      config.print_if err
       register_profile(null, 0)
       @awaiting_registration = false
       @registration          = registration
       @manage @grid, @registration unless @awaiting_grid
 
     register_grid = @profiler.start_timing('grid', 0)
-    config.getAll 'grid', (err, grid) =>
-      config.controller_log 'failed to get grid', err if err
+    config.getAll 'health', (err, grid) =>
+      config.print_if err
       register_grid(null, 0)
       @awaiting_grid = false
       @grid          = grid

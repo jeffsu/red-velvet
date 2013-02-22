@@ -88,13 +88,14 @@ class Config
       @print_if err
       client.keys "#{PREFIXES[type]}:*", (err, keys) =>
         @print_if err
-        result   = []
+        result   = {}
         enqueued = 0
         for k in keys
           enqueued++
           client.get k, (err, v) =>
             @print_if err
-            result.push JSON.parse v
+            if v && v != 'undefined'
+              result[k.substr PREFIXES[type].length + 1] = JSON.parse v
             cb(null, result) unless --enqueued
         cb(null, result) unless enqueued
 
