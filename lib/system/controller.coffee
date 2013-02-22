@@ -8,7 +8,7 @@ INTERVAL = 2000
 
 class Controller
   constructor: ->
-    config.controller_log 'starting controller'
+    console.log 'starting controller'
     @www = www()
     @www.get '/', (req, res) =>
       res.render('controller', controller: this, config: config)
@@ -39,6 +39,6 @@ class Controller
       profile err, 0
       config.print_if err
       @awaiting_grid = false
-      @manage grid
+      @manage @grid
 
 module.exports = Controller

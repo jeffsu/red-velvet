@@ -9,7 +9,7 @@ class Foreman
 
   constructor: ->
     @file     = config.file
-    @layout   = config.getLayout()
+    @layout   = config.layout
     @host     = config.host
     @port     = +config.port    # numeric coercion necessary here
     @workers  = {}              # a hash from port -> [[role, partition], ...]
@@ -56,8 +56,13 @@ class Foreman
       @register =>
       
   spawnController: ->
-    config.foreman_log 'spawning controller'
-    fork "#{__dirname}/controller-runner"
+    child = fork "#{__dirname}/controller-runner", { env: process.env, silent: true }
+
+    child.stdout.on 'data', (chunk) ->
+      config.controller_log chunk.toString().trim()
+
+    child.stderr.on 'data', (chunk) ->
+      config.controller_log chunk.toString().trim()
     
   checkController: (cb) ->
     config.checkController (err, host) =>

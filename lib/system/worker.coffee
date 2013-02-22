@@ -18,7 +18,7 @@ class Worker
     @setup()
 
   assume: (roleName, part=0) ->
-    config.worker_log "#{host}:#{port} is assuming #{roleName} #{part}"
+    console.log "#{host}:#{port} is assuming #{roleName} #{part}"
     if role = @layout.getRole roleName
       @app.assume role, part
 

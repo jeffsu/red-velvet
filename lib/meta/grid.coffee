@@ -89,10 +89,16 @@ class Grid extends EventEmitter
           cb(null) if cb
 
   play: (results, cb) ->
+    changedHosts = {}
     for json in results.reverse()
       hash = JSON.parse json
+      changedHosts[hash.host] = true
       ((@hosts[hash.host] ||= {})[hash.port] ||= {})[hash.key] = hash.value
     cb(null) if cb
+
+    if changedHosts[config.host]
+      @emit "updated-host"
+
     @emit "updated"
 
 module.exports = Grid
