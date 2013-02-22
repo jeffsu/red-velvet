@@ -4,6 +4,8 @@ WorkerShell   = require './worker-shell'
 ForemanHealth = require '../meta/foreman-health'
 www           = require '../transport/www'
 config        = require '../config'
+io            = require 'socket.io'
+{EventEmitter} = require 'events'
 
 INTERVAL = 1000
 class Foreman
@@ -23,6 +25,24 @@ class Foreman
 
     @www.get '/slides', (req, res) =>
       res.render 'slides'
+
+    @www.get '/output', (req, res) =>
+      res.render 'output'
+ 
+
+#    @io = require('socket.io').listen(@www)
+#
+#    @io.sockets.on 'output', (socket) =>
+#      socket.on 'listen', (data) =>
+#        listener = (message) =>
+#          socket.emit 'out', message
+#
+#        @on 'out', listener
+#
+#        remove = =>
+#          @removeListener 'out', listener
+#
+#        socket.on 'disconnect', remove
 
     @www.listen @port
     console.log "listening at port #{@port}"
@@ -86,6 +106,9 @@ class Foreman
       throw new Error("foreman: cannot reassign running worker")
 
     @workers[port] = worker = new WorkerShell(@host, port, @file)
+    worker.on 'out', (message) ->
+      @emit 'out', { message: message, port: port }
+
     for r in roles
       role      = r[0]
       partition = r[1] || 0

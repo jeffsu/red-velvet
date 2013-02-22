@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  script(src="/socket.io/socket.io.js")
+  :coffeescript
+    $ ->
+      socket = io.connect('http://localhost:8000')
+      socket.on 'connect', ->
+        alert 'connected'
+    

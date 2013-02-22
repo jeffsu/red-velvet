@@ -30,11 +30,17 @@ class WorkerShell extends EventEmitter
   fork: ->
     @child = fork __dirname + "/worker-runner.js", { env: @env, silent: true }
 
+    # TODO
+    # potential event emitter memory leak
     @child.stderr.on 'data', (chunk) ->
-      console.log chunk.toString().trim()
+      str = chunk.toString().trim()
+      @emit 'out', str
+      console.log str
 
     @child.stdout.on 'data', (chunk) ->
-      console.log chunk.toString().trim()
+      str = chunk.toString().trim()
+      @emit 'out', str
+      console.log str
 
     for r in @roles
       @assume r
