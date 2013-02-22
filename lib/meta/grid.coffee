@@ -87,7 +87,6 @@ class Grid extends EventEmitter
     config.getClient (err, client) =>
       client.eval update_cell, 4, host, port, key, JSON.stringify(value),
                   (err, result) =>
-        config.debug_log "written", err
         cb() if cb
 
   sync: (cb) ->

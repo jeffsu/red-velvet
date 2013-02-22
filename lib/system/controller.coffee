@@ -17,6 +17,7 @@ class Controller
         config: config
         hosts: @grid.hosts
         bottlenecks: @bottlenecks
+        network_analyses: @network_analyses
 
     @www.get '/workers/:host/:port', (req, res) =>
       port = req.params.port
@@ -65,7 +66,7 @@ class Controller
           )()
 
     @network_analyses = @optimizer.network_analyses(grid)
-    @bottlenecks      = @optimizer.bottlenecks(grid)
+    @bottlenecks      = @optimizer.bottlenecks(grid, @network_analyses)
 
   update: ->
     # Synchronize the grid if we're not already doing so.

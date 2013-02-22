@@ -60,7 +60,6 @@ class Foreman
     @grid.on 'updated', =>
       # Match up workers with our workers. If we see a new one in the
       # "spinup" state, spin it up.
-      console.log 'got grid update event'
       our_ports = @grid.hosts[@host]
       for port, cell of our_ports
         unless @workers[port]

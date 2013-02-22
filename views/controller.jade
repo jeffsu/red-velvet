@@ -36,6 +36,7 @@ block content
       th IP/port
       th Roles
       th Bottleneck factors
+      th Network analysis
       th Health
     each ports,host in hosts
       each hash,port in ports
@@ -43,5 +44,8 @@ block content
           tr
             td= host + ":" + port
             td= JSON.stringify(hash.roles)
-            td= JSON.stringify(bottlenecks[host])
+            td= JSON.stringify(bottlenecks[host + ":" + port])
+            td= JSON.stringify(network_analyses[host + ":" + port])
             td= JSON.stringify(hash.health)
+
+  div= JSON.stringify(hosts)
