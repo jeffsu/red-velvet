@@ -31,10 +31,10 @@ class WorkerShell extends EventEmitter
     @child = fork __dirname + "/worker-runner.js", { env: @env, silent: true }
 
     @child.stderr.on 'data', (chunk) ->
-      config.worker_log chunk.toString().trim()
+      console.log chunk.toString().trim()
 
     @child.stdout.on 'data', (chunk) ->
-      config.worker_log chunk.toString().trim()
+      console.log chunk.toString().trim()
 
     for r in @roles
       @assume r

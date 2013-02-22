@@ -24,43 +24,13 @@ class Foreman
     @www.get '/slides', (req, res) =>
       res.render 'slides'
 
-    # Assign request: redo all of the nodes managed by this foreman. Causes a
-    # brief service outage and kills active send queues.
-    @www.post '/assign.json', (req, res) =>
-      {roles, port} = JSON.parse req.body.data
-      @killWorkers()
-      @addWorker roles, port
-
-      # Workers are synchronous; once instantiated, we're good
-      res.writeHead 200, {}
-      res.end()
-
-    # Allocate worker request: like /assign, but does not stop any servers.
-    # This allows the controller to communicate with existing workers
-    # individually.
-    @www.post '/allocate.json', (req, res) =>
-      {roles, port} = JSON.parse req.body.data
-      @addWorker roles, port
-
-      res.writeHead 200, {}
-      res.end()
-
-    # Set-cluster request: updates each worker with a new topology description?
-    @www.post '/set-cluster.json', (req, res) =>
-      cluster = JSON.parse req.body.data
-      @setCluster cluster
-
-      res.writeHead 200, {}
-      res.end()
-
     @www.listen @port
-    config.foreman_log "listening at port #{@port}"
+    console.log "listening at port #{@port}"
 
     @grid = config.grid
     @grid.on 'updated', =>
       # Match up workers with our workers. If we see a new one in the
       # "spinup" state, spin it up.
-      console.log 'got grid update event'
       our_ports = @grid.hosts[@host]
       for port, cell of our_ports
         unless @workers[port]
@@ -68,8 +38,13 @@ class Foreman
             @grid.write @host, port, 'status', 'inactive'
             @addWorker(cell.roles, port)
 
+      cluster = []
+      for p of @grid.hosts[@host]
+        cluster.push {host: @host, port: p, roles: @grid.hosts[@host][p].roles}
+      @setCluster(cluster)
+
   run: ->
-    config.foreman_log 'bootup sequence initiated'
+    console.log 'bootup sequence initiated'
     @checkController =>
       @register =>
         @grid.sync()
@@ -78,14 +53,14 @@ class Foreman
     child = fork "#{__dirname}/controller-runner", { env: process.env, silent: true }
 
     child.stdout.on 'data', (chunk) ->
-      config.controller_log chunk.toString().trim()
+      console.log chunk.toString().trim()
 
     child.stderr.on 'data', (chunk) ->
-      config.controller_log chunk.toString().trim()
+      console.log chunk.toString().trim()
     
   checkController: (cb) ->
     config.checkController (err, host) =>
-      config.foreman_log err if err
+      console.log err if err
       @spawnController() if host is config.host
       cb(err)
 
