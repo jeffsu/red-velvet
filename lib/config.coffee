@@ -30,6 +30,7 @@ KEYS =
   cluster:  'RV:CLUSTER'
   register: "RV:REGISTER:#{host}"
   health:   "RV:HEALTH:#{host}"
+  grid:     "RV:GRID:#{host}"
   
 class Config
   constructor: ->
@@ -73,5 +74,9 @@ class Config
       str = JSON.stringify data
       client.set KEYS.type, str, (err) ->
         cb(err) if cb
+
+  saveGrid: (port, key, data) ->
+    workerKey = "#{KEYS.grid}:#{port}"
+    @client.hset workerKey, key, JSON.stringify(data)
 
 module.exports = new Config()

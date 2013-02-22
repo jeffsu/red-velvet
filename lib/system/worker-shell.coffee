@@ -35,7 +35,9 @@ class WorkerShell extends EventEmitter
       setTimeout restart, 2000
 
     @child.on 'message', (msg) =>
-      @metadata = msg.data if msg.type == 'health'
+      if msg.type == 'health'
+        @emit('health', msg.data)
+        @metadata = msg.data
 
 
   kill: (sig='SIGINT') ->
