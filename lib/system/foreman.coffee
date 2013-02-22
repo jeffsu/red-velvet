@@ -19,6 +19,7 @@ class Foreman
     @www.listen @port
     console.log "forman is listening at port #{@port}"
 
+
   run: ->
     console.log 'bootup sequence initiated'
     @checkController =>
@@ -45,7 +46,7 @@ class Foreman
     @setSchema(schema)
 
     i = 0
-    cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in@workers)
+    cluster = ([ w.host, w.port, [ roleNames[i++] ] ] for w in @workers)
     @setCluster cluster
 
   # array of [ role, count || 1 ]
@@ -68,8 +69,15 @@ class Foreman
   fork: (role) ->
     port = @port + @workers.length + 2
     worker = new WorkerShell(@host, port, @file)
+
     @workers.push worker
     worker.assume(role)
+
+    config.saveGrid(port, 'roles', [role])
+    config.saveGrid(port, 'migration_state', null)
+    worker.on 'health', (data) =>
+      config.saveGrid(port, 'health', data)
+
     worker
 
   # sets cluster configuration 
