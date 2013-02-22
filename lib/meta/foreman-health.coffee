@@ -27,7 +27,7 @@ class ForemanHealth
         load_average: @load_average.toJSON()
         worker_size:  total
         cpus:         os.cpus()
-      @grid.write @host, config.port, 'health', JSON.stringify @health
+      @grid.write @host, config.port, 'health', @health
 
     setInterval(repeat, INTERVAL)
 

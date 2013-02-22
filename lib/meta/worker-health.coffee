@@ -11,8 +11,7 @@ class WorkerHealth
 
   sendMetadata: ->
     console.log 'sending metadata'
-    config.grid.write @worker.host, @worker.port, 'health',
-                      JSON.stringify @getMetadata()
+    config.grid.write @worker.host, @worker.port, 'health', @getMetadata()
 
   getMetadata: ->
     clients:            @clientPool.getMetadata()

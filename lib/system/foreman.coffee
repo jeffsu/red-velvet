@@ -95,7 +95,7 @@ class Foreman
       type: 'foreman'
       status: 'active'
       layout: config.file
-      hardware: JSON.stringify
+      hardware:
         cpus: config.cpus
         totalmem: config.totalmem
     @grid.writeHash @host, @port, hash, =>

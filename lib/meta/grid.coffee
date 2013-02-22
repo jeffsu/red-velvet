@@ -76,7 +76,7 @@ class Grid extends EventEmitter
   destroy:  (host, port, cb) -> @write host, port, 'nuke', 'true', cb
 
   allocate: (host, port, roles, cb) ->
-    @write host, port, 'roles', JSON.stringify(roles), =>
+    @write host, port, 'roles', roles, =>
       @write host, port, 'status', 'spinup', cb
 
   port_for: (host) ->

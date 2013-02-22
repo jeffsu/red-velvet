@@ -50,7 +50,8 @@ class Controller
               grid.activate host, port
           )()
 
-    config.controller_log @optimizer.bottlenecks(grid)
+    @network_analyses = @optimizer.network_analyses(grid)
+    @bottlenecks      = @optimizer.bottlenecks(grid)
 
   update: ->
     # Synchronize the grid if we're not already doing so.
