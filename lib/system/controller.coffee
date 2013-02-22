@@ -11,7 +11,7 @@ class Controller
     config.controller_log 'starting controller'
     @www = www()
     @www.get '/', (req, res) =>
-      res.render('controller', controller: this, config: config)
+      res.render('controller', controller: this, config: config, hosts: @grid.hosts)
 
     @www.listen(config.port + 1)
 
@@ -19,7 +19,6 @@ class Controller
     @optimizer              = new GridOptimizer()
     @previous_machine_count = 0
 
-    @registration = []
     @grid         = config.grid
 
     update = => @update()
@@ -27,7 +26,7 @@ class Controller
     @update()
 
   # This is the entry point for grid manipulation.
-  manage: (grid, registration) ->
+  manage: (hosts) ->
 
   update: ->
     # Synchronize the grid if we're not already doing so.
@@ -39,6 +38,7 @@ class Controller
       profile err, 0
       config.print_if err
       @awaiting_grid = false
-      @manage grid
+
+      @manage @grid.hosts
 
 module.exports = Controller

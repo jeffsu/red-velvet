@@ -54,6 +54,7 @@ class Foreman
     config.foreman_log 'bootup sequence initiated'
     @checkController =>
       @register =>
+        @grid.sync()
       
   spawnController: ->
     config.foreman_log 'spawning controller'
@@ -66,9 +67,17 @@ class Foreman
       cb(err)
 
   register: (cb) ->
-    config.set 'register', cb
-    @persistHealth()
-    cb() if cb
+    @grid = config.grid
+    hash =
+      type: 'foreman'
+      status: 'active'
+      layout: config.file
+      hardware: JSON.stringify
+        cpus: config.cpus
+        totalmem: config.totalmem
+    @grid.writeHash @host, @port, hash, =>
+      @persistHealth()
+      cb() if cb
 
   persistHealth: ->
     saveHealth = =>
