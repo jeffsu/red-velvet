@@ -15,18 +15,36 @@ class Controller
 
     @www.listen(config.port + 1)
 
-    @profiler               = new RequestProfiler()
-    @optimizer              = new GridOptimizer()
-    @previous_machine_count = 0
+    @profiler            = new RequestProfiler()
+    @optimizer           = new GridOptimizer()
+    @initialized_workers = false
 
-    @grid         = config.grid
+    @grid = config.grid
 
     update = => @update()
     setInterval(update, INTERVAL)
     @update()
 
   # This is the entry point for grid manipulation.
-  manage: (grid, registration) ->
+  manage: (grid) ->
+    foremen = grid.all_foremen()
+    return console.log 'waiting for foremen' unless foremen.length
+
+    unless @initialized_workers
+      @initialized_workers = true
+      machine = 0
+      for name, role of config.layout.roles
+        for i in [0...role.partitions]
+          (->
+            f    = foremen[machine++ % foremen.length]
+            host = f.host
+            port = grid.port_for(f.host)
+
+            console.log "allocating #{name}:#{i} on #{host}:#{port}"
+            grid.allocate host, port, [[name, i]], ->
+              grid.activate host, port
+          )()
+
     config.controller_log @optimizer.bottlenecks(grid)
 
   update: ->
