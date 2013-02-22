@@ -1,6 +1,8 @@
 {EventEmitter} = require 'events'
 {fork} = require 'child_process'
 
+config = require '../config'
+
 # proxy class for worker process
 class WorkerShell extends EventEmitter
   constructor: (@host, @port, @file) ->

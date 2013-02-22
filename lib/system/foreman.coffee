@@ -53,6 +53,18 @@ class Foreman
     @www.listen @port
     config.foreman_log "listening at port #{@port}"
 
+    @grid = config.grid
+    @grid.on 'updated', =>
+      # Match up workers with our workers. If we see a new one in the
+      # "spinup" state, spin it up.
+      console.log 'got grid update event'
+      our_ports = @grid.hosts[@host]
+      for port, cell of our_ports
+        unless @workers[port]
+          if cell.status == 'spinup'
+            @grid.write @host, port, 'status', 'inactive'
+            @addWorker(cell.roles, port)
+
   run: ->
     config.foreman_log 'bootup sequence initiated'
     @checkController =>

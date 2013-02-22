@@ -18,13 +18,12 @@ class Worker
     @setup()
 
   assume: (roleName, part=0) ->
-    console.log "#{host}:#{port} is assuming #{roleName} #{part}"
     if role = @layout.getRole roleName
       @app.assume role, part
 
   # connect the dots
   setup: ->
-    @layout = config.getLayout()
+    @layout = config.layout
     @app    = new App()
 
     # handle receiving requests
