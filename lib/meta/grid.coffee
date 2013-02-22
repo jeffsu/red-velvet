@@ -14,9 +14,14 @@ update_cell = """
   local grid_key = namespace .. ":" .. worker
 
   local len         = redis.call("LLEN", "RV:GRID:JOURNAL") + 1
-  local journal_val = cjson.encode({ host = host, port = port, key = key, value = value, length = len })
 
   redis.call("HSET", grid_key, key, value)
+
+  if key == "version" then
+    return redis.call("LLEN", "RV:GRID:JOURNAL")
+  end
+
+  local journal_val = cjson.encode({ host = host, port = port, key = key, value = value, length = len })
   redis.call("LPUSH", "RV:GRID:JOURNAL", journal_val)
   redis.call("PUBLISH", "RV:GRID", journal_val)
   return redis.call("LLEN", "RV:GRID:JOURNAL")
@@ -60,6 +65,13 @@ class Grid extends EventEmitter
       @write host, port, k, v, =>
         count--
     cb() if (cb && count == 0)
+
+  activate: (host, port) ->
+    @write host, port, 'status', 'active'
+
+  deactivate: (host, port) ->
+    @write host, port, 'status', 'obsolete'
+
 
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) =>

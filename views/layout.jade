@@ -3,26 +3,25 @@ html
   head
     title Red Velvet
     link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
+    script(src="/jquery.js")
+    script(src="/d3.js")
+    script(src="/bootstrap/js/bootstrap.js")
 
     :stylus
       body
-        margin-top: 60px
+        margin-top: 20px
 
   body
-    .navbar.navbar-fixed-top
-      .navbar-inner
-        .container
-          a(data-toggle='collapse',data-target='.nav-collapse').btn.btn-navbar
-            a(href='/').brand Red Velvet
-            span.icon-bar
-            span.icon-bar
-            span.icon-bar
-              div.nav-collapse
-                ul.nav
-
+    :stylus
+      body
+        background-color black
+        color #eee
+      h3
+        color red
 
     .container
+      h3 Red Velvet
       block content
 
-    footer
+    footer.container
       p &copy; Factual Hackathon 2013
