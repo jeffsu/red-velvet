@@ -1,35 +1,30 @@
 {EventEmitter} = require 'events'
+RoleCollection = require './role-collection'
 
 # You can think of this as an incarnation
 # of a layout
 class App extends EventEmitter
   constructor: ->
     @roles = {}
+    @collections = {}
     @proxy = new AppProxy(this)
 
-  assume: (role) ->
-    @roles[role.name] = role
-    role._init(@proxy)
+  assume: (role, part=0) ->
+    name = role.name
+    coll = (@collections[name] ||= new RoleCollection(role, @proxy))
+    coll.assume(part)
 
-  unassume: (role) ->
-    delete @roles[role.name]
+  unassume: (role, part=0) ->
+    # TODO
 
   handleEmit: (packet) ->
-    event = packet.event
-    for name, role of @roles
-      if handler = role.ons[event]
-        packet.count++
-        handler(packet, @proxy)
+    for name, coll of @collections
+      coll.emit(packet)
 
   handleAsk: (packet) ->
-    event = packet.event
-    for name, role of @roles
-      if handler = role.answers[event]
-        handler(packet, @proxy)
+    for name, coll of @collections
+      if coll.ask(packet)
         return
-
-  migrate: (packet) ->
-    @roles[packet.role].migrate_to(packet.to, packet)
 
   _emit: (event, data) ->
     # I know, weird but we want to 

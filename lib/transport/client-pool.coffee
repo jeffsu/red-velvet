@@ -32,7 +32,7 @@ class ClientPool
       parts = @balancers[role] ||= []
       (parts[part] ||= new Balancer()).push(client)
 
-  chooseBalancer: (role, data) ->
+  choose: (role, data) ->
     part = role.getPartition(data)
     @balancers[role.name][part].choose()
 
@@ -41,13 +41,13 @@ class ClientPool
     onFin = (err) ->
       if --n == 0
         cb(err) if cb
-      
+    
     for role in roles
-      balancer = @chooseBalancer(role, data)
+      balancer = @choose(role, data)
       balancer.emit(event, data, onFin)
   
   ask: (question, data, role, cb) ->
-    balancer = @chooseBalancer(role, data)
+    balancer = @choose(role, data)
     balancer.ask(question, data, cb)
     
 

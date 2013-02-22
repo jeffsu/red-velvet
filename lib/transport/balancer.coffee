@@ -15,6 +15,5 @@ class Balancer
 
   ask: (question, data, cb) ->
     @choose().ask(question, data, cb)
-    
   
 module.exports = Balancer
