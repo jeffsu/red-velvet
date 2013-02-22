@@ -15,9 +15,9 @@
 #
 # The number of partitions can be set as one of the options.
 
-rv      = require '../'
-helpers = require '../helpers'
-Role    = require './role'
+helpers     = require '../helpers'
+Role        = require './role'
+Broadcaster = require '../transport/broadcaster'
 
 class Store extends Role
   constructor: (layout, @name, @options, cb) ->
@@ -79,8 +79,8 @@ class Store extends Role
   rm: (sender, id, cb) ->
     sender.emit("store-rm:#{@suffix_for(id)}", {id: id}, cb)
 
-  migrate_to: (hostport, packet) ->
-    @migrate_handler rv.getClientBroadcast(hostport), (err) ->
+  migrate_to: (hostports, packet) ->
+    @migrate_handler new Broadcaster(hostports), (err) ->
       packet.ack(err)
 
 module.exports = Role
