@@ -20,10 +20,7 @@ class ClientPool
   # ]
   setCluster: (data) ->
     for row in data
-      host  = row.host
-      port  = row.port
-      roles = row.roles
-      @add(new Client(host, port), roles)
+      @add(new Client(row.host, row.port), row.roles)
 
   add: (client, roles) ->
     @clients.push(client)
