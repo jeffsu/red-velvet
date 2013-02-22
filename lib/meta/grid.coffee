@@ -64,7 +64,6 @@ class Grid extends EventEmitter
 
   writeHash: (host, port, hash, cb) ->
     count = 0
-    console.log hash
     for k,v of hash
       count++
       @write host, port, k, v, =>
@@ -86,8 +85,8 @@ class Grid extends EventEmitter
   write: (host, port, key, value, cb) ->
     config.getClient (err, client) =>
       client.eval update_cell, 4, host, port, key, JSON.stringify(value),
-                  (err, result) =>
-        cb() if cb
+        (err, result) =>
+          cb() if cb
 
   sync: (cb) ->
     config.getClient (err, client) =>

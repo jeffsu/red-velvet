@@ -16,8 +16,8 @@ class Layout
     @roles[name] = new Role(name, options, cb)
     return this
 
-  getRole: (name, part=0) ->
-    return
+  getRole: (name) ->
+    return @roles[name]
 
   print: ->
     out = [ 'ROLES:' ]
@@ -40,9 +40,6 @@ class Layout
       i++
       out.push "      o " + name
     out.pop() if i == 0
-
-  getRole: (name) ->
-    @roles[name]
 
   getRoleNames: ->
     ret = []

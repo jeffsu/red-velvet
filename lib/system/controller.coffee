@@ -60,8 +60,7 @@ class Controller
             reserved["#{host}:#{port}"] = true
 
             console.log "allocating #{name}:#{i} on #{host}:#{port}"
-            grid.allocate host, port, [[name, i]], ->
-              grid.activate host, port
+            grid.allocate host, port, [[name, i]]
           )()
 
     @network_analyses = @optimizer.network_analyses(grid)
