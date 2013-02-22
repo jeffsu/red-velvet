@@ -42,13 +42,15 @@ class Worker
     @clientPool   = new ClientPool()
     @workerHealth = new WorkerHealth(@clientPool, @server)
 
-    @app.on 'emit', (emit, data, cb) =>
-      roles = @layout.getRoleNamesFromEmit(emit)
+    emitLookup = {}
+    @app.on 'emit', (event, data, cb) =>
+      roles = emitLookup[event] ||= @layout.getRolesFromEvent(event)
       @clientPool.emit(emit, data, roles, cb)
 
-    @app.on 'ask', (question, data, cb) =>
-      role = @layout.getRoleNameFromAsk(question)
-      @clientPool.ask(question, data, role, cb)
+    askLookup = {}
+    @app.on 'ask', (q, data, cb) =>
+      role = askLookup[q] ||= @layout.getRoleFromQuestion(q)
+      @clientPool.ask(q, data, role, cb)
 
     @server.run @port
 

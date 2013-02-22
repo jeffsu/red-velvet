@@ -14,19 +14,27 @@ class ClientPool
     return (c.profile_data() for c in @clients)
 
   # [ 
-  #   [ host, port, [ role, part ], [role] ] 
+  #   [ host, port, [ [ role, part ], [ role1 ] ] ]
   # ]
   setCluster: (data) ->
     for row in data
-      @add(new Client(row[0], row[1]), row[2])
+      host  = row[0]
+      port  = row[1]
+      roles = row[2]
+      @add(new Client(host, port), roles)
 
   add: (client, roles) ->
     @clients.push(client)
     for r in roles
-      (@balancers[r] ||= new Balancer()).push(client)
+      role = r[0]
+      part = r[1] || 0
 
-  choose: (role) ->
-    @balancers[role].choose()
+      parts = @balancers[role] ||= []
+      (parts[part] ||= new Balancer()).push(client)
+
+  chooseBalancer: (role, data) ->
+    part = role.getPartition(data)
+    @balancers[role][part].choose()
 
   emit: (event, data, roles, cb) ->
     n = roles.length
@@ -35,13 +43,12 @@ class ClientPool
         cb(err) if cb
       
     for role in roles
-      client = @balancers[role].choose()
-      client.emit(event, data, onFin)
-    
+      balancer = @chooseBalancer(role, data)
+      balancer.emit(event, data, onFin)
   
   ask: (question, data, role, cb) ->
-    client = @balancers[role].choose()
-    client.ask(question, data, cb)
+    balancer = @chooseBalancer(role, data)
+    balancer.ask(question, data, cb)
     
 
 module.exports = ClientPool

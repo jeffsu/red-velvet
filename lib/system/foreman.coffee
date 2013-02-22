@@ -7,7 +7,7 @@ config = require '../config'
 INTERVAL = 1000
 class Foreman
 
-  constructor: (@host) ->
+  constructor: ->
     @file     = config.file
     @host     = config.host
     @port     = config.port
@@ -52,10 +52,14 @@ class Foreman
     config.set 'register', cb
 
   start: ->
-    layout = require @file
-    roleNames = layout.getRoleNames()
-    schema = ([r, 1] for r in roleNames)
-    @setSchema(schema)
+    layout = config.layout
+    roles = []
+    for name, role of layout.roles
+      for i in [ 1..role.partitions ]
+        roles.push role.name, i
+
+    console.log(roles)
+    @setSchema(roles)
 
     @persistHealth()
 

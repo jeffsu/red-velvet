@@ -47,11 +47,12 @@ config.file  = fullpath
 config.port  = argv.port
 config.redis = argv.redis
 config.env   = argv.env
+config.layout = require fullpath
 
 switch command
   when 'run'
-    Foreman = require('../lib/system/foreman')
-    forman = new Foreman fullpath
+    Foreman = require '../lib/system/foreman'
+    forman = new Foreman
     forman.run()
 
   when 'layout'

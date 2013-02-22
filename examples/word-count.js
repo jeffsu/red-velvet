@@ -28,7 +28,7 @@ layout
     });
   })
 
-  .role('word-counter', function (role) {
+  .role('word-counter', { partitions: 2 }, function (role) {
     var counts = {};
 
     role.on('words', function (packet, app) {
@@ -46,27 +46,6 @@ layout
       var word = packet.data;
       packet.answer(null, counts[word] || 0);
     });
-  })
-
-  .store('word-store', function (store) {
-    store.partitions   = 1000;
-    store.hashFunction = rv.helpers.djbHash;
-
-    store.on('get', function (packet) {
-      var key = packet.key;
-      packet.reply('data');
-    })
-
-    store.on('set', function (packet) {
-      var key   = packet.key;
-      var value = packet.value;
-      packet.ack(null);
-    })
-
-    store.on('remove', function (packet) {
-      var key = packet.key;
-      packet.ack(null);
-    })
   });
 
 module.exports = layout;
