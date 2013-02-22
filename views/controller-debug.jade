@@ -43,3 +43,45 @@ block content
             td= host + ":" + port
             td= hash.roles.map(function (x) {return x[0]}).join(', ')
             td= hash.status
+
+  h5 Health
+  table.table.table-bordered
+    tr
+      th IP/port
+      th Health
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'worker'
+          tr
+            td= host + ":" + port
+            td
+              pre= JSON.stringify(hash.health, null, 2)
+
+  h5 Network analysis
+  table.table.table-bordered
+    tr
+      th IP/port
+      th Network analysis
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'worker'
+          tr
+            td= host + ":" + port
+            td
+              pre= JSON.stringify(network_analyses[host + ":" + port], null, 2)
+
+  h5 Bottleneck analysis
+  table.table.table-bordered
+    tr
+      th IP/port
+      th Bottleneck factors
+    each ports,host in hosts
+      each hash,port in ports
+        if hash.type == 'worker'
+          tr
+            td= host + ":" + port
+            td
+              pre= JSON.stringify(bottlenecks[host + ":" + port], null, 2)
+
+  h5 Grid state
+  pre= JSON.stringify(hosts, null, 2)
