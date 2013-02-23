@@ -19,8 +19,8 @@ class Server extends EventEmitter
 
     @www = require('./www')()
 
-    @www.get '/', (req, res) =>
-      res.render 'worker'
+    @www.get '/ask', (req, res) =>
+      res.render 'worker-ask'
 
     @www.post '/ask/:question', (req, res) =>
       app.ask req.params.question, req.body.data, (err, answer) ->

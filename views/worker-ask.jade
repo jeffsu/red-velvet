@@ -7,18 +7,22 @@ block content
     .control-group
       label.control-label question
       .controls
-        input.question(value='avg-duration')
+        input.question(placeholder='avg-duration')
     .control-group
       label.control-label data
       .controls
         textarea.data(placeholder='apikey')
     .form-actions
       button.btn.btn-primary Get Answer
+      .answer
   :coffeescript
     $ ->
       $question = $('.question')
       $data     = $('.data')
+      $answer   = $('.answer')
       $('.btn').click () ->
         path = "/ask/#{$question.val()}"
         $.post path, data: $data.val(), (payload)->
-          alert payload.toString()
+           $answer.hide()
+           $answer.text payload.toString()
+           $answer.fadeIn()
