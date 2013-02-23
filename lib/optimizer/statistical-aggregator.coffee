@@ -18,7 +18,7 @@ class StatisticalAggregator
 
   average:               -> @total / @n || 0.0
   impurity:              -> @sum(x * x for x in @normalized())
-  normalized: (base = 0) -> ((x + base) / total for x in @quantized_log_buckets)
+  normalized: (base = 0) -> ((x + base) / @total for x in @quantized_log_buckets)
 
   shifted_by: (powers) ->
     new StatisticalAggregator(@n, @total, @quantized_log_buckets.slice(powers))

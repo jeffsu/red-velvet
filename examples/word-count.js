@@ -24,8 +24,10 @@ layout
   .role('line-reader', function (role) {
     role.on('line', function (packet, app) { 
       console.log("-- got line")
-      app.emit('words', packet.data.split(/\s+/));
-      packet.ack();
+      setTimeout(function () {
+        app.emit('words', packet.data.split(/\s+/));
+        packet.ack();
+      }, Math.random() * 500);
     });
   })
 
