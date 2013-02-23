@@ -60,8 +60,10 @@ class GridOptimizer
     result
 
   network_analysis: (grid, server) ->
+    return {} unless server.health?.server_profile
+
     server_total   = new StatisticalAggregator()
-    server_profile = server.health.server_profile
+    server_profile = server.health.server_profile.per_type_timings
     for role, stats of server_profile
       server_total = server_total.plus(StatisticalAggregator.fromJSON stats)
 
@@ -70,42 +72,53 @@ class GridOptimizer
     clients = grid.all_cells (cell, host, port) ->
       !(host == server.host && port == server.port)
 
-    client_distribution = new StatisticalAggregator()
-    role_distribution   = new StatisticalAggregator()
-    client_totals       = {}
-    role_totals         = {}
+    client_totals = {}
+    role_totals   = {}
 
     for c in clients
-      if c.client_profiles
-        if stats_for_server = c.client_profiles["#{server.host}:#{server.port}"]
-          client_id         = "#{c.host}:#{c.port}"
-          this_client_total = new StatisticalAggregator()
+      client_id = "#{c.host}:#{c.port}"
 
-          for role, stats of stats_for_server
-            stats = StatisticalAggregator.fromJSON stats
-            role_totals[role] ||= new StatisticalAggregator()
-            role_totals[role] = role_totals[role].plus stats
-            client_distribution.push stats.average()
+      if cp = c.health?.client_profiles
+        if stats_hash = cp["#{server.host}:#{server.port}"]
+          for type, roles_hash of stats_hash
+            hr = role_totals[type]   ||= {}
+            hc = client_totals[type] ||= {}
 
-            this_client_total = this_client_total.plus stats
-            all_clients_total = all_clients_total.plus stats
+            for role, stats of roles_hash
+              stats = StatisticalAggregator.fromJSON stats
+              hr[role] ||= new StatisticalAggregator()
+              hr[role] = hr[role].plus stats
 
-          client_totals[client_id] = this_client_total
+              if type == 'per_type_timings'
+                all_clients_total = all_clients_total.plus stats
 
-    role_averages = {}
-    role_averages[r] = v.average() for r, v of role_totals
+              hc[client_id] ||= new StatisticalAggregator()
+              hc[client_id] = hc[client_id].plus stats
 
-    client_averages = {}
-    client_averages[c] = v.average() for c, v of client_totals
+    role_average_times = {}
+    role_average_times[r] = v.average() for r, v of role_totals.per_type_timings
+
+    role_average_rates = {}
+    role_average_rates[r] = v.average() for r, v of role_totals.per_type_rates
+
+    client_average_times = {}
+    client_average_times[c] = v.average() for c, v of client_totals.per_type_timings
+
+    client_average_rates = {}
+    client_average_rates[r] = v.average() for r, v of client_totals.per_type_rates
 
     server_time = server_total.average()
     client_time = all_clients_total.average()
 
-    loss_ratio:      1.0 - (server_time / Math.max(server_time, client_time))
-    role_impurity:   role_distribution.impurity()
-    client_impurity: client_distribution.impurity()
-    role_averages:   role_averages
-    client_averages: client_averages
+    loss_ratio:           1.0 - (server_time / Math.max(server_time, client_time))
+    server_total_time:    server_time
+    client_total_time:    client_time
+    server_total_n:       server_total.n
+    client_total_n:       all_clients_total.n
+    role_average_times:   role_average_times
+    role_average_rates:   role_average_rates
+    client_average_times: client_average_times
+    client_average_rates: client_average_rates
 
   # Specific bottleneck measurements
   memory_badness: (grid, host) ->
