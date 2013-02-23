@@ -42,10 +42,10 @@ class GridOptimizer
   # Each bottleneck metric is in the range [0, 1], with 1 being the slowest.
   bottlenecks: (grid, network_analyses = @network_analyses(grid)) ->
     result = {}
-    for host, row of grid
+    for host, row of grid.hosts
       for port, cell of row
         cell_id = "#{host}:#{port}"
-        if network_analyses[cell_id]
+        if cell.health && network_analyses[cell_id]
           result[cell_id] =
             network:   @network_loss_badness(network_analyses[cell_id])
             memory:    @memory_badness(grid, cell)
@@ -122,24 +122,24 @@ class GridOptimizer
 
   # Specific bottleneck measurements
   memory_badness: (grid, host) ->
-    foreman    = grid.foreman_for(host)
+    return 0 unless foreman = grid.foreman_for(host)
     free_ratio = foreman.health.free_memory / foreman.hardware.total_memory
     return 0 if free_ratio > FREE_MEMORY_TARGET
     return 1.0 - (free_ratio / FREE_MEMORY_TARGET)
 
   event_loop_badness: (grid, server) ->
-    purity = 1.0 - StatisticalAggregator().fromJSON(server.event_latency).
-                                           shifted_by(EVENT_LOOP_SHIFT).
-                                           impurity()
+    return 0.0 unless server.health?.event_latency
+    purity = 1.0 - StatisticalAggregator.fromJSON(server.health.event_latency).
+                                         shifted_by(EVENT_LOOP_SHIFT).
+                                         impurity()
 
     return 0.0 if purity >= EVENT_LOOP_PURITY_TARGET
     return 1.0 - (purity / EVENT_LOOP_PURITY_TARGET)
 
   network_loss_badness: (network_analysis) ->
+    return 0 unless network_analysis.loss_ratio
     loss = network_analysis.loss_ratio
     return 0.0 if loss <= NETWORK_LOSS_TARGET
     return (loss - NETWORK_LOSS_TARGET) / (1.0 - NETWORK_LOSS_TARGET)
-
-  # Cell retrieval functions
 
 module.exports = GridOptimizer
