@@ -22,8 +22,8 @@ class Server extends EventEmitter
     @www.get '/', (req, res) =>
       res.render 'worker'
 
-    @www.get '/ask/:role/:question', (req, res) =>
-      app.ask req.params.role, req.params.question, (err, answer) ->
+    @www.post '/ask/:question', (req, res) =>
+      app.ask req.params.question, req.body.data, (err, answer) ->
         res.writeHead 200, {}
         res.write answer
         res.end()

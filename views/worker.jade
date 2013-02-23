@@ -2,6 +2,7 @@ extends layout
 block content
   h3 Worker
   h5 Ask
+  hr
   .form-horizontal
     .control-group
       label.control-label question
@@ -18,6 +19,6 @@ block content
       $question = $('.question')
       $data     = $('.data')
       $('.btn').click () ->
-        path = "/ask/#{$question.val()}/#{$data.val()}"
-        $.get path, (payload)->
+        path = "/ask/#{$question.val()}"
+        $.post path, data: $data.val(), (payload)->
           alert payload.toString()
